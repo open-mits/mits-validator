@@ -1,0 +1,115 @@
+[project]
+name = "mits-validator"
+dynamic = ["version"]                   # managed by hatch-vcs from git tags
+description = "Open-source validator for MITS (Property Marketing / ILS) XML feeds."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "open-mits", email = "opensource@example.org" }]
+maintainers = [{ name = "open-mits maintainers", email = "opensource@example.org" }]
+keywords = ["MITS", "ILS", "PropTech", "XML", "validator", "fastapi", "schematron", "xsd"]
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Text Processing :: Markup :: XML",
+  "Framework :: FastAPI",
+]
+
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "pydantic>=2.9.0",
+  "lxml>=5.2.0",
+  "httpx>=0.27.2",
+  "typer>=0.12.0",
+  "python-multipart>=0.0.6",
+]
+
+# ---- EXTRAS ----
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "pytest-cov>=5.0.0",
+  "ruff>=0.6.8",
+  "mypy>=1.11.0",
+  "types-requests",
+  "coverage[toml]>=7.6.0",
+  "pre-commit>=4.0.0",
+  "bandit>=1.7.9",
+]
+docs = [
+  "mkdocs>=1.6.0",
+  "mkdocs-material>=9.5.0",
+  "pymdown-extensions>=10.8",
+]
+
+# ---- CONSOLE SCRIPTS ----
+[project.scripts]
+mits-api = "mits_validator.__main__:run"
+mits-validate = "mits_validator.cli:main"
+
+# ---- URLs (strings only) ----
+[project.urls]
+Homepage = "https://github.com/open-mits/mits-validator"
+Repository = "https://github.com/open-mits/mits-validator"
+Issues = "https://github.com/open-mits/mits-validator/issues"
+
+# ---------------- BUILD SYSTEM ----------------
+[build-system]
+requires = ["hatchling>=1.25", "hatch-vcs>=0.4"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "LICENSE", "README.md"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mits_validator"]
+
+# ---------------- uv SETTINGS ----------------
+[tool.uv]
+managed = true
+
+# ---------------- RUFF ----------------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "S"]
+ignore = ["S101"]  # allow asserts in tests
+
+# ---------------- MYPY ----------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+warn_unreachable = true
+disallow_any_generics = true
+no_implicit_optional = true
+mypy_path = ["src"]
+explicit_package_bases = true
+
+# ---------------- PYTEST / COVERAGE ----------------
+[tool.pytest.ini_options]
+addopts = "-q --cov=mits_validator --cov-report=term-missing"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["mits_validator"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80

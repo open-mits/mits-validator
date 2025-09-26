@@ -1,0 +1,17 @@
+# Global owners
+* @open-mits
+
+# Core maintainers for specific areas
+/src/ @open-mits
+/tests/ @open-mits
+/docs/ @open-mits
+
+# Configuration files
+/.github/ @open-mits
+/pyproject.toml @open-mits
+/LICENSE @open-mits
+/README.md @open-mits
+/CONTRIBUTING.md @open-mits
+/CODE_OF_CONDUCT.md @open-mits
+/SECURITY.md @open-mits
+/GOVERNANCE.md @open-mits
