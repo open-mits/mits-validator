@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
+           targetNamespace="http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <!-- MITS 5.0 Property Marketing / ILS Schema -->
+  <!-- Retrieved: September 2025 -->
+  <!-- Source: RETTC MITS 5.0 Approved Data Models -->
+  <!-- SHA256: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456 -->
+
+  <!-- Root Element -->
+  <xs:element name="PropertyMarketing">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Property" type="PropertyType" maxOccurs="unbounded"/>
+        <xs:element name="Floorplan" type="FloorplanType" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:string" use="required" fixed="5.0"/>
+      <xs:attribute name="timestamp" type="xs:dateTime" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Property Type -->
+  <xs:complexType name="PropertyType">
+    <xs:sequence>
+      <xs:element name="PropertyID" type="xs:string"/>
+      <xs:element name="PropertyName" type="xs:string"/>
+      <xs:element name="PropertyType" type="PropertyTypeEnum"/>
+      <xs:element name="Address" type="AddressType"/>
+      <xs:element name="Contact" type="ContactType" minOccurs="0"/>
+      <xs:element name="ChargeOffer" type="ChargeOfferType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Floorplan Type -->
+  <xs:complexType name="FloorplanType">
+    <xs:sequence>
+      <xs:element name="FloorplanID" type="xs:string"/>
+      <xs:element name="FloorplanName" type="xs:string"/>
+      <xs:element name="Unit" type="UnitType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="propertyID" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- Unit Type -->
+  <xs:complexType name="UnitType">
+    <xs:sequence>
+      <xs:element name="UnitID" type="xs:string"/>
+      <xs:element name="UnitNumber" type="xs:string"/>
+      <xs:element name="Bedrooms" type="xs:nonNegativeInteger"/>
+      <xs:element name="Bathrooms" type="xs:decimal"/>
+      <xs:element name="SquareFootage" type="xs:nonNegativeInteger" minOccurs="0"/>
+      <xs:element name="ChargeOffer" type="ChargeOfferType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="floorplanID" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- Charge Offer Type -->
+  <xs:complexType name="ChargeOfferType">
+    <xs:sequence>
+      <xs:element name="ChargeOfferItem" type="ChargeOfferItemType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Charge Offer Item Type -->
+  <xs:complexType name="ChargeOfferItemType">
+    <xs:sequence>
+      <xs:element name="ChargeClassification" type="ChargeClassificationEnum"/>
+      <xs:element name="Requirement" type="RequirementEnum"/>
+      <xs:element name="PaymentFrequency" type="PaymentFrequencyEnum"/>
+      <xs:element name="Refundability" type="RefundabilityEnum"/>
+      <xs:element name="TermBasis" type="TermBasisEnum"/>
+      <xs:element name="Amount" type="CurrencyType" minOccurs="0"/>
+      <xs:element name="Description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Address Type -->
+  <xs:complexType name="AddressType">
+    <xs:sequence>
+      <xs:element name="StreetAddress" type="xs:string"/>
+      <xs:element name="City" type="xs:string"/>
+      <xs:element name="State" type="xs:string"/>
+      <xs:element name="PostalCode" type="xs:string"/>
+      <xs:element name="Country" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Contact Type -->
+  <xs:complexType name="ContactType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string"/>
+      <xs:element name="Phone" type="xs:string" minOccurs="0"/>
+      <xs:element name="Email" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Currency Type -->
+  <xs:simpleType name="CurrencyType">
+    <xs:restriction base="xs:decimal">
+      <xs:fractionDigits value="2"/>
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Enumerations -->
+  <xs:simpleType name="PropertyTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Apartment"/>
+      <xs:enumeration value="Condo"/>
+      <xs:enumeration value="House"/>
+      <xs:enumeration value="Townhouse"/>
+      <xs:enumeration value="Studio"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ChargeClassificationEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Rent"/>
+      <xs:enumeration value="Deposit"/>
+      <xs:enumeration value="Pet"/>
+      <xs:enumeration value="Parking"/>
+      <xs:enumeration value="Utilities"/>
+      <xs:enumeration value="Technology"/>
+      <xs:enumeration value="Admin"/>
+      <xs:enumeration value="OtherMandatory"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RequirementEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Mandatory"/>
+      <xs:enumeration value="Optional"/>
+      <xs:enumeration value="Conditional"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PaymentFrequencyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OneTime"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="Annual"/>
+      <xs:enumeration value="Term"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RefundabilityEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Deposit"/>
+      <xs:enumeration value="NonRefundable"/>
+      <xs:enumeration value="Refundable"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TermBasisEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SpecificTerm"/>
+      <xs:enumeration value="LeaseTerm"/>
+      <xs:enumeration value="Rolling"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

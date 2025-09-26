@@ -25,6 +25,7 @@ def validate(
     file: Path | None = Option(None, "--file", "-f", help="Path to XML file to validate"),
     url: str | None = Option(None, "--url", "-u", help="URL to XML content to validate"),
     profile: str = Option("default", "--profile", "-p", help="Validation profile to use"),
+    mode: str = Option("xsd", "--mode", "-m", help="Validation mode: xsd, schematron, or both"),
     json_output: bool = Option(False, "--json", "-j", help="Output results in JSON format"),
 ) -> None:
     """Validate MITS XML feed from file or URL."""
@@ -38,16 +39,16 @@ def validate(
     
     try:
         if file:
-            _validate_file(file, profile, json_output)
+            _validate_file(file, profile, mode, json_output)
         else:
             if url:
-                _validate_url(url, profile, json_output)
+                _validate_url(url, profile, mode, json_output)
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
         raise typer.Exit(1)
 
 
-def _validate_file(file_path: Path, profile: str, json_output: bool) -> None:
+def _validate_file(file_path: Path, profile: str, mode: str, json_output: bool) -> None:
     """Validate XML file."""
     if not file_path.exists():
         typer.echo(f"Error: File {file_path} does not exist", err=True)
@@ -85,7 +86,7 @@ def _validate_file(file_path: Path, profile: str, json_output: bool) -> None:
         raise typer.Exit(1)
 
 
-def _validate_url(url: str, profile: str, json_output: bool) -> None:
+def _validate_url(url: str, profile: str, mode: str, json_output: bool) -> None:
     """Validate XML from URL."""
     try:
         # Fetch URL content

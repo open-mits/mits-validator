@@ -122,6 +122,7 @@ async def validate(
     url: str | None = DEFAULT_FORM,
     max_size_mb: int = DEFAULT_SIZE,
     profile: str | None = None,
+    mode: str = Query("xsd", description="Validation mode: xsd, schematron, or both"),
 ) -> JSONResponse:
     """
     Validate MITS XML feed.
@@ -156,7 +157,7 @@ async def validate(
 
 
 async def _validate_file_upload(
-    file: UploadFile, max_size_mb: int, start_time: float, profile: str | None = None
+    file: UploadFile, max_size_mb: int, start_time: float, profile: str | None = None, mode: str = "xsd"
 ) -> JSONResponse:
     """Validate file upload."""
     # Get validation profile
@@ -221,7 +222,7 @@ async def _validate_file_upload(
 
 
 async def _validate_url(
-    url: str, max_size_mb: int, start_time: float, profile: str | None = None
+    url: str, max_size_mb: int, start_time: float, profile: str | None = None, mode: str = "xsd"
 ) -> JSONResponse:
     """Validate URL (intake only, no actual fetching yet)."""
     # Validate URL format with defensive error handling

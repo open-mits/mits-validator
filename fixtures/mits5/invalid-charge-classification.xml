@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PropertyMarketing xmlns="http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
+                   version="5.0"
+                   timestamp="2025-09-15T10:30:00Z">
+  
+  <Property>
+    <PropertyID>PROP-001</PropertyID>
+    <PropertyName>Sunset Apartments</PropertyName>
+    <PropertyType>Apartment</PropertyType>
+    <Address>
+      <StreetAddress>123 Main Street</StreetAddress>
+      <City>Anytown</City>
+      <State>CA</State>
+      <PostalCode>12345</PostalCode>
+    </Address>
+    <ChargeOffer>
+      <ChargeOfferItem>
+        <ChargeClassification>InvalidCharge</ChargeClassification>
+        <Requirement>Mandatory</Requirement>
+        <PaymentFrequency>Monthly</PaymentFrequency>
+        <Refundability>NonRefundable</Refundability>
+        <TermBasis>LeaseTerm</TermBasis>
+        <Amount>1500.00</Amount>
+      </ChargeOfferItem>
+    </ChargeOffer>
+  </Property>
+  
+</PropertyMarketing>

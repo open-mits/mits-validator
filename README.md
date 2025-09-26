@@ -14,6 +14,8 @@ A professional, open-source validator for MITS (Property Marketing / ILS) XML fe
 - ✅ **Defensive Input Validation** - Strict content checks, size limits, and error handling
 - ✅ **Structured Validation Results** - Machine-readable result envelope with findings
 - ✅ **Modular Validation Architecture** - Extensible validation levels (WellFormed, XSD, Schematron, Semantic)
+- ✅ **Real MITS 5.0 XSD Validation** - Official MITS 5.0 schema validation with comprehensive error reporting
+- ✅ **Schematron Business Rules** - Business logic validation with example rules
 - ✅ **Validation Profiles** - Configurable profiles for different use cases (PMS, ILS, Marketplace)
 - ✅ **Error Taxonomy** - Centralized error codes with consistent messaging
 - ✅ **File & URL Validation** - Support for both file uploads and URL-based validation

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PropertyMarketing xmlns="http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
+                   version="5.0"
+                   timestamp="2025-09-15T10:30:00Z">
+  
+  <Property>
+    <PropertyID>PROP-001</PropertyID>
+    <PropertyName>Sunset Apartments</PropertyName>
+    <PropertyType>Apartment</PropertyType>
+    <Address>
+      <StreetAddress>123 Main Street</StreetAddress>
+      <City>Anytown</City>
+      <State>CA</State>
+      <PostalCode>12345</PostalCode>
+      <Country>USA</Country>
+    </Address>
+    <Contact>
+      <Name>Property Manager</Name>
+      <Phone>555-123-4567</Phone>
+      <Email>manager@sunsetapartments.com</Email>
+    </Contact>
+    <ChargeOffer>
+      <ChargeOfferItem>
+        <ChargeClassification>Rent</ChargeClassification>
+        <Requirement>Mandatory</Requirement>
+        <PaymentFrequency>Monthly</PaymentFrequency>
+        <Refundability>NonRefundable</Refundability>
+        <TermBasis>LeaseTerm</TermBasis>
+        <Amount>1500.00</Amount>
+        <Description>Monthly rent</Description>
+      </ChargeOfferItem>
+      <ChargeOfferItem>
+        <ChargeClassification>Deposit</ChargeClassification>
+        <Requirement>Mandatory</Requirement>
+        <PaymentFrequency>OneTime</PaymentFrequency>
+        <Refundability>Deposit</Refundability>
+        <TermBasis>LeaseTerm</TermBasis>
+        <Amount>1500.00</Amount>
+        <Description>Security deposit</Description>
+      </ChargeOfferItem>
+    </ChargeOffer>
+  </Property>
+  
+  <Floorplan propertyID="PROP-001">
+    <FloorplanID>FP-001</FloorplanID>
+    <FloorplanName>1 Bedroom</FloorplanName>
+    <Unit floorplanID="FP-001">
+      <UnitID>UNIT-001</UnitID>
+      <UnitNumber>101</UnitNumber>
+      <Bedrooms>1</Bedrooms>
+      <Bathrooms>1.0</Bathrooms>
+      <SquareFootage>750</SquareFootage>
+      <ChargeOffer>
+        <ChargeOfferItem>
+          <ChargeClassification>Pet</ChargeClassification>
+          <Requirement>Optional</Requirement>
+          <PaymentFrequency>Monthly</PaymentFrequency>
+          <Refundability>NonRefundable</Refundability>
+          <TermBasis>Rolling</TermBasis>
+          <Amount>50.00</Amount>
+          <Description>Pet fee</Description>
+        </ChargeOfferItem>
+      </ChargeOffer>
+    </Unit>
+  </Floorplan>
+  
+</PropertyMarketing>
