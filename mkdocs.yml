@@ -66,11 +66,15 @@ nav:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
     - Configuration: getting-started/configuration.md
+  - Validation:
+    - Validation Levels: validation-levels.md
+    - Error Codes: error-codes.md
   - API Reference:
     - REST API: api/rest.md
     - CLI Reference: api/cli.md
   - Contributing:
     - Contributing: contributing.md
+    - Contributing Rules: contributing-rules.md
     - Code of Conduct: code-of-conduct.md
     - Security: security.md
     - Governance: governance.md

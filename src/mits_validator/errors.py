@@ -198,6 +198,22 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         remediation="Check URL accessibility and network connectivity",
         level="network",
     ),
+    "NETWORK:DNS_ERROR": ErrorDefinition(
+        code="NETWORK:DNS_ERROR",
+        severity=FindingLevel.ERROR,
+        title="DNS resolution error",
+        description="Failed to resolve domain name",
+        remediation="Check URL and DNS configuration",
+        level="network",
+    ),
+    "NETWORK:TOO_LARGE_DURING_STREAM": ErrorDefinition(
+        code="NETWORK:TOO_LARGE_DURING_STREAM",
+        severity=FindingLevel.ERROR,
+        title="Content too large",
+        description="Content exceeded size limit during streaming",
+        remediation="Reduce content size or increase limit",
+        level="network",
+    ),
     # URL errors
     "URL:INTAKE_ACKNOWLEDGED": ErrorDefinition(
         code="URL:INTAKE_ACKNOWLEDGED",
