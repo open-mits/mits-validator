@@ -263,7 +263,10 @@ uv run pre-commit run --all-files
 ## 📚 Documentation
 
 - **Project Overview**: [docs/index.md](docs/index.md)
+- **Architecture**: [docs/architecture.md](docs/architecture.md)
 - **API Reference**: [docs/api/](docs/api/)
+- **Operational Notes**: [docs/operational-notes.md](docs/operational-notes.md)
+- **Roadmap**: [docs/roadmap.md](docs/roadmap.md)
 - **Contributing Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Security Policy**: [SECURITY.md](SECURITY.md)
 - **Governance**: [GOVERNANCE.md](GOVERNANCE.md)

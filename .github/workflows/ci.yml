@@ -52,6 +52,12 @@ jobs:
     - name: Validate catalogs
       run: uv run python scripts/validate_catalogs.py
 
+    - name: Run Bandit security scan
+      run: uv run bandit -r src/ -f json -o bandit-report.json || true
+
+    - name: Run contract tests
+      run: uv run pytest tests/test_contract.py -v
+
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.12'
       uses: codecov/codecov-action@v4

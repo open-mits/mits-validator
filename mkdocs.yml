@@ -66,12 +66,17 @@ nav:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
     - Configuration: getting-started/configuration.md
-  - Validation:
+  - Architecture:
+    - System Overview: architecture.md
     - Validation Levels: validation-levels.md
+    - Response Envelope: response-envelope.md
     - Error Codes: error-codes.md
   - API Reference:
     - REST API: api/rest.md
     - CLI Reference: api/cli.md
+  - Operations:
+    - Operational Notes: operational-notes.md
+    - Roadmap: roadmap.md
   - Contributing:
     - Contributing: contributing.md
     - Contributing Rules: contributing-rules.md
