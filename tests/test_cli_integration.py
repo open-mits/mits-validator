@@ -94,7 +94,9 @@ class TestCLIIntegration:
             xml_file = Path(f.name)
 
         try:
-            result = runner.invoke(app, ["validate", "--file", str(xml_file), "--profile", "pms"])
+            result = runner.invoke(
+                app, ["validate", "--file", str(xml_file), "--profile", "pms-publisher"]
+            )
             # Should exit with code 1 due to XSD validation errors
             assert result.exit_code == 1
         finally:

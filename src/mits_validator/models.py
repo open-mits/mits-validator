@@ -46,7 +46,7 @@ class Finding:
 class ValidationResult:
     """Result of a validation level execution."""
 
-    level: ValidationLevel
+    level: str
     findings: list[Finding]
     duration_ms: int
 

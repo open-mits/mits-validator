@@ -1,0 +1,17 @@
+name: pms-publisher
+description: Profile for PMS (Property Management System) publishers
+enabled_levels:
+  - WellFormed
+  - XSD
+  # Schematron and Semantic disabled for basic validation
+severity_overrides:
+  # Treat missing schemas as warnings, not errors
+  "XSD:SCHEMA_MISSING": warning
+  "SCHEMATRON:NO_RULES_LOADED": info
+intake_limits:
+  max_bytes: 5242880  # 5MB
+  allowed_content_types:
+    - application/xml
+    - text/xml
+    - application/octet-stream
+  timeout_seconds: 15

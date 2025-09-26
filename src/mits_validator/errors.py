@@ -132,14 +132,6 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         remediation="Schematron validation skipped - rules not configured",
         level="Schematron",
     ),
-    "SCHEMATRON:RULE_FAILURE": ErrorDefinition(
-        code="SCHEMATRON:RULE_FAILURE",
-        severity=FindingLevel.ERROR,
-        title="Schematron rule failed",
-        description="XML failed Schematron business rule validation",
-        remediation="Fix XML to satisfy business rules",
-        level="Schematron",
-    ),
     # Engine errors
     "ENGINE:LEVEL_CRASH": ErrorDefinition(
         code="ENGINE:LEVEL_CRASH",
@@ -207,17 +199,6 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         remediation="URL validation is experimental - use file upload for full validation",
         level="url",
     ),
-    # Schematron errors
-    "SCHEMATRON:NO_RULES_LOADED": ErrorDefinition(
-        code="SCHEMATRON:NO_RULES_LOADED",
-        severity=FindingLevel.INFO,
-        title="Schematron rules not loaded",
-        description="No Schematron rules available for validation",
-        remediation=(
-            "Add Schematron rules to rules/schematron/ directory for cross-field validation"
-        ),
-        level="schematron",
-    ),
     # Catalog errors
     "CATALOG:VERSION_NOT_FOUND": ErrorDefinition(
         code="CATALOG:VERSION_NOT_FOUND",
@@ -266,6 +247,57 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         description="Duplicate code found within a catalog file",
         remediation="Ensure all codes are unique within each catalog file",
         level="catalog",
+    ),
+    # Schematron errors
+    "SCHEMATRON:NO_RULES_LOADED": ErrorDefinition(
+        code="SCHEMATRON:NO_RULES_LOADED",
+        severity=FindingLevel.INFO,
+        title="Schematron rules not loaded",
+        description="No Schematron rules available for validation",
+        remediation="Add Schematron rules to rules/schematron/ for cross-field validation",
+        level="schematron",
+    ),
+    "SCHEMATRON:RULE_FAILURE": ErrorDefinition(
+        code="SCHEMATRON:RULE_FAILURE",
+        severity=FindingLevel.ERROR,
+        title="Schematron rule failed",
+        description="XML failed Schematron business rule validation",
+        remediation="Review and fix the business rule violation",
+        level="schematron",
+    ),
+    # Semantic errors
+    "SEMANTIC:ENUM_UNKNOWN": ErrorDefinition(
+        code="SEMANTIC:ENUM_UNKNOWN",
+        severity=FindingLevel.ERROR,
+        title="Unknown enumeration value",
+        description="Value not found in the enumeration catalog",
+        remediation="Use a valid enumeration value from the catalog",
+        level="semantic",
+    ),
+    "SEMANTIC:LIMIT_EXCEEDED": ErrorDefinition(
+        code="SEMANTIC:LIMIT_EXCEEDED",
+        severity=FindingLevel.ERROR,
+        title="Limit exceeded",
+        description="Value exceeds the configured limit",
+        remediation="Reduce the value to within the allowed limit",
+        level="semantic",
+    ),
+    "SEMANTIC:INCONSISTENT_TOTALS": ErrorDefinition(
+        code="SEMANTIC:INCONSISTENT_TOTALS",
+        severity=FindingLevel.ERROR,
+        title="Inconsistent totals",
+        description="Calculated totals do not match expected values",
+        remediation="Review and correct the calculation or input values",
+        level="semantic",
+    ),
+    # Engine errors
+    "ENGINE:RESOURCE_LOAD_FAILED": ErrorDefinition(
+        code="ENGINE:RESOURCE_LOAD_FAILED",
+        severity=FindingLevel.ERROR,
+        title="Resource load failed",
+        description="Failed to load a required resource",
+        remediation="Check that the resource exists and is accessible",
+        level="engine",
     ),
 }
 

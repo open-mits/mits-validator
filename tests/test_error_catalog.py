@@ -85,7 +85,8 @@ class TestErrorCatalog:
             categories.add(category)
         
         expected_categories = {
-            "INTAKE", "WELLFORMED", "XSD", "SCHEMATRON", "ENGINE", "NETWORK", "URL", "CATALOG"
+            "INTAKE", "WELLFORMED", "XSD", "SCHEMATRON", "SEMANTIC", 
+            "ENGINE", "NETWORK", "URL", "CATALOG"
         }
         assert categories == expected_categories, (
             f"Missing categories: {expected_categories - categories}"

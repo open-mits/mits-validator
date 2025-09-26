@@ -6,7 +6,7 @@ from pathlib import Path
 import lxml.etree as ET
 from lxml import etree
 
-from mits_validator.models import Finding, FindingLevel, ValidationLevel, ValidationResult
+from mits_validator.models import Finding, FindingLevel, ValidationResult
 
 
 class XSDValidator:
@@ -29,7 +29,7 @@ class XSDValidator:
             # Schema loading failed - will be reported as missing
             self._schema = None
 
-    def validate(self, content: bytes, content_type: str) -> ValidationResult:
+    def validate(self, content: bytes) -> ValidationResult:
         """Validate XML against XSD schema."""
         start_time = time.time()
         findings: list[Finding] = []
@@ -75,5 +75,9 @@ class XSDValidator:
 
         duration_ms = int((time.time() - start_time) * 1000)
         return ValidationResult(
-            level=ValidationLevel.XSD, findings=findings, duration_ms=duration_ms
+            level="XSD", findings=findings, duration_ms=duration_ms
         )
+
+    def get_name(self) -> str:
+        """Get the name of this validation level."""
+        return "XSD"

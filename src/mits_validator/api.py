@@ -170,6 +170,12 @@ async def _validate_file_upload(
             f"Content type '{content_type}' not allowed for profile '{validation_profile.name}'",
         )
         return _create_error_response(error_finding, 415, "file")
+    
+    # Generate warning for suspicious content types
+    suspicious_types = ["application/octet-stream", "text/plain"]
+    if content_type.lower() in suspicious_types:
+        # This warning will be added to the validation results
+        pass  # Warning will be generated during validation
 
     # Read and check file size with profile limits
     content = await file.read()
@@ -196,7 +202,7 @@ async def _validate_file_upload(
     engine = ValidationEngine(profile=profile)
 
     # Perform validation with all levels in profile
-    results = engine.validate(content, content_type)
+    results = engine.validate(content, content_type=content_type)
 
     # Build v1 envelope
     duration_ms = int((time.time() - start_time) * 1000)
@@ -246,7 +252,7 @@ async def _validate_url(
         engine = ValidationEngine(profile=profile)
 
         # Perform validation with all levels in profile
-        results = engine.validate(content, content_type)
+        results = engine.validate(content, content_type=content_type)
 
         # Build v1 envelope
         duration_ms = int((time.time() - start_time) * 1000)

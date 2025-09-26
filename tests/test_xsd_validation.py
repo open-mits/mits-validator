@@ -49,8 +49,8 @@ class TestXSDValidation:
     <Provider>Test Provider</Provider>
   </Header>
 </MITS>'''
-            
-            result = validator.validate(valid_xml.encode(), "application/xml")
+    
+            result = validator.validate(valid_xml.encode())
             assert result.level == ValidationLevel.XSD
             assert len(result.findings) == 0  # No errors for valid XML
             
@@ -62,7 +62,7 @@ class TestXSDValidation:
   </Header>
 </MITS>'''
             
-            result = validator.validate(invalid_xml.encode(), "application/xml")
+            result = validator.validate(invalid_xml.encode())
             assert result.level == ValidationLevel.XSD
             assert len(result.findings) == 1
             assert result.findings[0].code == "XSD:VALIDATION_ERROR"
@@ -76,7 +76,7 @@ class TestXSDValidation:
         validator = XSDValidator(None)
         
         xml_content = b'<?xml version="1.0"?><root>test</root>'
-        result = validator.validate(xml_content, "application/xml")
+        result = validator.validate(xml_content)
         
         assert result.level == ValidationLevel.XSD
         assert len(result.findings) == 1
@@ -88,7 +88,7 @@ class TestXSDValidation:
         validator = XSDValidator(Path("/non/existent/schema.xsd"))
         
         xml_content = b'<?xml version="1.0"?><root>test</root>'
-        result = validator.validate(xml_content, "application/xml")
+        result = validator.validate(xml_content)
         
         assert result.level == ValidationLevel.XSD
         assert len(result.findings) == 1
@@ -116,7 +116,7 @@ class TestXSDValidation:
             
             # The schema should fail to load, so we should get SCHEMA_MISSING
             xml_content = b'<?xml version="1.0"?><root>test</root>'
-            result = validator.validate(xml_content, "application/xml")
+            result = validator.validate(xml_content)
             
             assert result.level == ValidationLevel.XSD
             assert len(result.findings) == 1
@@ -128,11 +128,11 @@ class TestXSDValidation:
 
     def test_xsd_validation_integration(self):
         """Test XSD validation through the API."""
-        # Test with the default schema (should be missing)
+        # Test with invalid XML that should fail XSD validation
         xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
 <MITS xmlns="http://www.mits.org/schema" version="1.0">
   <Header>
-    <Provider>Test Provider</Provider>
+    <InvalidElement>This should fail XSD validation</InvalidElement>
   </Header>
 </MITS>'''
         

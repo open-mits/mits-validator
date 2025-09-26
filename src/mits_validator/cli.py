@@ -40,7 +40,8 @@ def validate(
         if file:
             _validate_file(file, profile, json_output)
         else:
-            _validate_url(url, profile, json_output)
+            if url:
+                _validate_url(url, profile, json_output)
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
         raise typer.Exit(1)
@@ -69,7 +70,7 @@ def _validate_file(file_path: Path, profile: str, json_output: bool) -> None:
     engine = ValidationEngine(profile=profile)
     
     # Perform validation
-    results = engine.validate(content, content_type)
+    results = engine.validate(content, content_type=content_type)
     
     # Build response
     response_data = build_v1_envelope(validation_request, results, profile, 0)
@@ -79,8 +80,8 @@ def _validate_file(file_path: Path, profile: str, json_output: bool) -> None:
     else:
         _print_human_readable(response_data)
     
-    # Exit with appropriate code
-    if response_data["summary"]["errors"] > 0:
+    # Exit with error code if validation failed
+    if not response_data["summary"]["valid"]:
         raise typer.Exit(1)
 
 
@@ -110,18 +111,18 @@ def _validate_url(url: str, profile: str, json_output: bool) -> None:
             engine = ValidationEngine(profile=profile)
             
             # Perform validation
-            results = engine.validate(content, content_type)
+            results = engine.validate(content, content_type=content_type)
             
             # Build response
-            response_data = build_v1_envelope(validation_request, results, profile, 0)
+            response_data: dict[str, Any] = build_v1_envelope(validation_request, results, profile, 0)
             
             if json_output:
                 print(json.dumps(response_data, indent=2))
             else:
                 _print_human_readable(response_data)
             
-            # Exit with appropriate code
-            if response_data["summary"]["errors"] > 0:
+            # Exit with error code if validation failed
+            if not response_data["summary"]["valid"]:
                 raise typer.Exit(1)
                 
     except httpx.TimeoutException:

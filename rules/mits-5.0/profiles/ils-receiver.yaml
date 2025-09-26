@@ -1,0 +1,17 @@
+name: ils-receiver
+description: Profile for ILS (Internet Listing Service) receivers
+enabled_levels:
+  - WellFormed
+  - XSD
+  - Schematron
+  # Semantic level disabled for performance
+severity_overrides:
+  # Treat some warnings as errors for stricter validation
+  "XSD:SCHEMA_MISSING": error
+  "SCHEMATRON:NO_RULES_LOADED": warning
+intake_limits:
+  max_bytes: 20971520  # 20MB
+  allowed_content_types:
+    - application/xml
+    - text/xml
+  timeout_seconds: 45
