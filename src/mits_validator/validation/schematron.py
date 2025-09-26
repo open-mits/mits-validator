@@ -116,7 +116,7 @@ def validate_schematron(
                 report = schematron.validation_report
                 if report is not None:
                     for error in report.iter():
-                        if error.tag.endswith("failed-assert") or error.tag.endswith("successful-report"):
+                        if str(error.tag).endswith("failed-assert") or str(error.tag).endswith("successful-report"):
                             # Extract rule information
                             rule_id = error.get("id", "unknown")
                             test = error.get("test", "")
@@ -124,7 +124,7 @@ def validate_schematron(
                             
                             # Determine severity based on rule type
                             level = FindingLevel.ERROR
-                            if error.tag.endswith("successful-report"):
+                            if str(error.tag).endswith("successful-report"):
                                 level = FindingLevel.WARNING
                             
                             findings.append(
