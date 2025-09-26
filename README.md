@@ -11,9 +11,11 @@ A professional, open-source validator for MITS (Property Marketing / ILS) XML fe
 
 ### Current (MVP)
 - ✅ **FastAPI Web Service** - RESTful API with health checks and validation endpoints
-- ✅ **CLI Interface** - Command-line tool for validation tasks
+- ✅ **Structured Validation Results** - Machine-readable result envelope with findings
+- ✅ **Modular Validation Architecture** - Extensible validation levels (WellFormed, XSD, Schematron, Semantic)
 - ✅ **File & URL Validation** - Support for both file uploads and URL-based validation
 - ✅ **Size Limits & Security** - Configurable file size limits and safe request handling
+- ✅ **XML Well-Formedness** - Basic XML parsing and structure validation
 - ✅ **Comprehensive Testing** - Full test suite with coverage reporting
 - ✅ **Professional Documentation** - Complete docs with MkDocs Material
 
@@ -79,6 +81,63 @@ mits-validate check feed.xml
 Once the server is running, visit:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
+
+## Result Envelope
+
+The validation API returns a structured, machine-readable result envelope:
+
+```json
+{
+  "api_version": "1.0",
+  "validator": {
+    "name": "mits-validator",
+    "spec_version": "unversioned",
+    "profile": "default",
+    "levels_executed": ["WellFormed"]
+  },
+  "input": {
+    "source": "file",
+    "filename": "feed.xml",
+    "size_bytes": 1234,
+    "content_type": "application/xml"
+  },
+  "summary": {
+    "valid": true,
+    "errors": 0,
+    "warnings": 0,
+    "duration_ms": 12
+  },
+  "findings": [
+    {
+      "level": "error",
+      "code": "WELLFORMED:PARSE_ERROR",
+      "message": "XML parsing failed: ...",
+      "location": {
+        "line": 123,
+        "column": 4,
+        "xpath": "/Root/Node[2]"
+      },
+      "rule_ref": "internal://WellFormed"
+    }
+  ],
+  "metadata": {
+    "request_id": "uuid-here",
+    "timestamp": "2024-01-01T00:00:00Z",
+    "engine": {
+      "fastapi": "0.115.0",
+      "lxml": "5.2.0"
+    }
+  }
+}
+```
+
+### Key Fields:
+- **`api_version`**: Response schema version (stable)
+- **`validator`**: Validator metadata and executed levels
+- **`input`**: Information about the validated input
+- **`summary`**: High-level validation results
+- **`findings`**: Detailed validation findings with location info
+- **`metadata`**: Request tracking and engine versions
 
 ## 🔧 Development
 
