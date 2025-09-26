@@ -1,61 +1,64 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mits.org/schemas/mits-5.0/parking.schema.json",
-  "title": "MITS 5.0 Parking Specialization Schema",
-  "description": "Schema for MITS 5.0 parking item specialization",
+  "title": "MITS Parking Item Specialization",
+  "description": "Schema for parking item specialization catalog",
   "type": "object",
   "properties": {
-    "structure_type": {
+    "code": {
       "type": "string",
-      "enum": ["SURFACE", "GARAGE", "UNDERGROUND", "COVERED", "OPEN"],
-      "description": "Type of parking structure"
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "description": "UPPER_SNAKE_CASE code, must be unique within the file"
     },
-    "size_type": {
+    "name": {
       "type": "string",
-      "enum": ["COMPACT", "STANDARD", "LARGE", "MOTORCYCLE", "OVERSIZED"],
-      "description": "Size classification of parking space"
+      "minLength": 1,
+      "description": "Short human-readable name"
     },
-    "availability": {
+    "description": {
       "type": "string",
-      "enum": ["AVAILABLE", "RESERVED", "UNAVAILABLE"],
-      "description": "Current availability status"
+      "description": "Optional detailed description"
     },
-    "reservable": {
-      "type": "boolean",
-      "description": "Whether the parking space can be reserved"
-    },
-    "unit_of_measure": {
-      "type": "string",
-      "enum": ["SPACE", "SQUARE_FOOT", "SQUARE_METER"],
-      "description": "Unit of measurement for the parking space"
-    },
-    "dimensions": {
-      "type": "object",
-      "properties": {
-        "length": {
-          "type": "number",
-          "minimum": 0
-        },
-        "width": {
-          "type": "number",
-          "minimum": 0
-        },
-        "height": {
-          "type": "number",
-          "minimum": 0
-        }
-      },
-      "description": "Physical dimensions of the parking space"
-    },
-    "amenities": {
+    "structure_types": {
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["ELECTRIC_CHARGING", "COVERED", "SECURE", "VALET", "SELF_PARK"]
+        "enum": ["SURFACE", "GARAGE", "UNDERGROUND", "ROOFTOP", "MIXED"]
       },
-      "description": "Available amenities for the parking space"
+      "description": "Available parking structure types"
+    },
+    "size_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["COMPACT", "STANDARD", "LARGE", "OVERSIZED", "MOTORCYCLE", "ELECTRIC"]
+      },
+      "description": "Available parking size types"
+    },
+    "availability": {
+      "type": "string",
+      "enum": ["AVAILABLE", "RESERVABLE", "BOTH"],
+      "description": "Availability type"
+    },
+    "units_of_measure": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR"]
+      },
+      "description": "Supported units of measure"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional array of alternative names"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional implementation notes"
     }
   },
-  "required": ["structure_type", "size_type", "availability", "reservable"],
+  "required": ["code", "name", "structure_types", "size_types", "availability", "units_of_measure"],
   "additionalProperties": false
 }

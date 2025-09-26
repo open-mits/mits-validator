@@ -1,13 +1,11 @@
 {
-  "storage_type": "BASEMENT",
-  "size_type": "MEDIUM",
-  "availability": "AVAILABLE",
-  "reservable": false,
-  "unit_of_measure": "CUBIC_FOOT",
-  "capacity": {
-    "volume": 100.0,
-    "weight_limit": 500.0
-  },
-  "access_type": "PRIVATE",
-  "amenities": ["CLIMATE_CONTROLLED", "SECURE"]
+  "code": "STORAGE_UNIT",
+  "name": "Storage Unit",
+  "description": "Storage space for tenant belongings",
+  "storage_types": ["CLIMATE_CONTROLLED", "STANDARD", "OUTDOOR", "SECURE", "TEMPORARY"],
+  "size_categories": ["SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE", "CUSTOM"],
+  "access_types": ["SELF_SERVICE", "STAFF_ASSISTED", "APPOINTMENT_ONLY", "KEY_ACCESS"],
+  "units_of_measure": ["CUBIC_FOOT", "CUBIC_METER", "SQUARE_FOOT", "SQUARE_METER", "UNIT"],
+  "aliases": ["STORAGE_LOCKER", "TENANT_STORAGE"],
+  "notes": "Common storage specialization"
 }

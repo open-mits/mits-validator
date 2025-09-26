@@ -1,22 +1,32 @@
 [
   {
-    "code": "DAYS",
-    "name": "Days",
-    "description": "Duration in days"
+    "code": "DAILY",
+    "name": "Daily",
+    "description": "Duration measured in days",
+    "aliases": ["PER_DAY", "DAILY_BASIS"]
   },
   {
-    "code": "WEEKS",
-    "name": "Weeks",
-    "description": "Duration in weeks"
+    "code": "WEEKLY",
+    "name": "Weekly",
+    "description": "Duration measured in weeks",
+    "aliases": ["PER_WEEK", "WEEKLY_BASIS"]
   },
   {
-    "code": "MONTHS",
-    "name": "Months",
-    "description": "Duration in months"
+    "code": "MONTHLY",
+    "name": "Monthly",
+    "description": "Duration measured in months",
+    "aliases": ["PER_MONTH", "MONTHLY_BASIS"]
   },
   {
-    "code": "YEARS",
-    "name": "Years",
-    "description": "Duration in years"
+    "code": "QUARTERLY",
+    "name": "Quarterly",
+    "description": "Duration measured in quarters (3 months)",
+    "aliases": ["PER_QUARTER", "QUARTERLY_BASIS"]
+  },
+  {
+    "code": "ANNUALLY",
+    "name": "Annually",
+    "description": "Duration measured in years",
+    "aliases": ["PER_YEAR", "YEARLY_BASIS"]
   }
 ]

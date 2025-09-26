@@ -2,16 +2,19 @@
   {
     "code": "REQUIRED",
     "name": "Required",
-    "description": "Charge is mandatory for this item"
+    "description": "Charge is mandatory for all tenants",
+    "aliases": ["MANDATORY", "OBLIGATORY"]
   },
   {
     "code": "OPTIONAL",
     "name": "Optional",
-    "description": "Charge is optional for this item"
+    "description": "Charge is optional and tenant may choose to pay",
+    "aliases": ["ELECTIVE", "CHOICE"]
   },
   {
     "code": "CONDITIONAL",
     "name": "Conditional",
-    "description": "Charge applies under specific conditions"
+    "description": "Charge applies only under specific conditions",
+    "aliases": ["SITUATIONAL", "CONTINGENT"]
   }
 ]

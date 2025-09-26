@@ -1,13 +1,11 @@
 {
-  "structure_type": "GARAGE",
-  "size_type": "STANDARD",
-  "availability": "AVAILABLE",
-  "reservable": true,
-  "unit_of_measure": "SPACE",
-  "dimensions": {
-    "length": 18.0,
-    "width": 8.5,
-    "height": 7.0
-  },
-  "amenities": ["COVERED", "SECURE"]
+  "code": "PARKING_SPACE",
+  "name": "Parking Space",
+  "description": "Standard parking space for vehicles",
+  "structure_types": ["SURFACE", "GARAGE", "UNDERGROUND", "ROOFTOP"],
+  "size_types": ["COMPACT", "STANDARD", "LARGE", "OVERSIZED", "MOTORCYCLE", "ELECTRIC"],
+  "availability": "BOTH",
+  "units_of_measure": ["HOUR", "DAY", "WEEK", "MONTH", "QUARTER", "YEAR"],
+  "aliases": ["PARKING_SPOT", "VEHICLE_SPACE"],
+  "notes": "Most common parking specialization"
 }

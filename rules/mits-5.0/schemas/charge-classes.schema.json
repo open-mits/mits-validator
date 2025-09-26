@@ -1,41 +1,43 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mits.org/schemas/mits-5.0/charge-classes.schema.json",
-  "title": "MITS 5.0 Charge Classes Schema",
-  "description": "Schema for MITS 5.0 charge class catalogs",
+  "title": "MITS Charge Classes",
+  "description": "Schema for MITS charge class catalog",
   "type": "array",
   "items": {
-    "type": "object",
-    "properties": {
-      "code": {
-        "type": "string",
-        "pattern": "^[A-Z][A-Z0-9_]*$",
-        "description": "Unique identifier in UPPER_SNAKE_CASE"
-      },
-      "name": {
-        "type": "string",
-        "minLength": 1,
-        "description": "Human-friendly display name"
-      },
-      "description": {
-        "type": "string",
-        "description": "Optional detailed description"
-      },
-      "aliases": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "description": "Optional alternative names"
-      },
-      "notes": {
-        "type": "string",
-        "description": "Optional implementation notes"
-      }
-    },
-    "required": ["code", "name"],
-    "additionalProperties": false
+    "$ref": "#/$defs/ChargeClassEntry"
   },
-  "minItems": 1,
-  "uniqueItems": true
+  "$defs": {
+    "ChargeClassEntry": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "UPPER_SNAKE_CASE code, must be unique within the file"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short human-readable name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional detailed description"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional array of alternative names"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional implementation notes"
+        }
+      },
+      "required": ["code", "name"],
+      "additionalProperties": false
+    }
+  }
 }

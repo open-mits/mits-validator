@@ -1,17 +1,20 @@
 [
   {
-    "code": "REFUNDABLE",
-    "name": "Refundable",
-    "description": "Charge is fully refundable"
-  },
-  {
-    "code": "NON_REFUNDABLE",
-    "name": "Non-Refundable",
-    "description": "Charge is not refundable"
+    "code": "FULLY_REFUNDABLE",
+    "name": "Fully Refundable",
+    "description": "Full amount is refundable under specified conditions",
+    "aliases": ["100_PERCENT_REFUNDABLE", "FULL_REFUND"]
   },
   {
     "code": "PARTIALLY_REFUNDABLE",
     "name": "Partially Refundable",
-    "description": "Charge is refundable under certain conditions"
+    "description": "Portion of amount is refundable under specified conditions",
+    "aliases": ["PARTIAL_REFUND", "PRO_RATED"]
+  },
+  {
+    "code": "NON_REFUNDABLE",
+    "name": "Non-Refundable",
+    "description": "Amount is not refundable under any conditions",
+    "aliases": ["NO_REFUND", "FORFEITED"]
   }
 ]

@@ -2,21 +2,25 @@
   {
     "code": "NO_MAXIMUM",
     "name": "No Maximum",
-    "description": "No maximum refund amount"
+    "description": "No maximum refund amount specified",
+    "aliases": ["UNLIMITED", "NO_CAP"]
   },
   {
     "code": "FIXED_MAXIMUM",
     "name": "Fixed Maximum",
-    "description": "Fixed maximum refund amount"
+    "description": "Maximum refund is a fixed dollar amount",
+    "aliases": ["SET_MAXIMUM", "CAP_AMOUNT"]
   },
   {
     "code": "PERCENTAGE_MAXIMUM",
     "name": "Percentage Maximum",
-    "description": "Maximum refund as percentage of original amount"
+    "description": "Maximum refund is a percentage of original amount",
+    "aliases": ["PERCENT_CAP", "RATE_MAXIMUM"]
   },
   {
-    "code": "DEPOSIT_MAXIMUM",
-    "name": "Deposit Maximum",
-    "description": "Maximum refund limited to deposit amount"
+    "code": "ORIGINAL_AMOUNT",
+    "name": "Original Amount",
+    "description": "Maximum refund equals the original charge amount",
+    "aliases": ["FULL_AMOUNT", "100_PERCENT"]
   }
 ]

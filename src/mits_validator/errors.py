@@ -248,6 +248,22 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         remediation="Ensure all codes are unique within each catalog file",
         level="catalog",
     ),
+    "CATALOG:NO_ENUMS": ErrorDefinition(
+        code="CATALOG:NO_ENUMS",
+        severity=FindingLevel.INFO,
+        title="No enum files found",
+        description="No enumeration files found in the enums directory",
+        remediation="Add enum files to the enums directory if needed",
+        level="catalog",
+    ),
+    "CATALOG:NO_SPECIALIZATIONS": ErrorDefinition(
+        code="CATALOG:NO_SPECIALIZATIONS",
+        severity=FindingLevel.INFO,
+        title="No specialization files found",
+        description="No item specialization files found in the specializations directory",
+        remediation="Add specialization files to the specializations directory if needed",
+        level="catalog",
+    ),
     # Schematron errors
     "SCHEMATRON:NO_RULES_LOADED": ErrorDefinition(
         code="SCHEMATRON:NO_RULES_LOADED",

@@ -1,62 +1,67 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mits.org/schemas/mits-5.0/storage.schema.json",
-  "title": "MITS 5.0 Storage Specialization Schema",
-  "description": "Schema for MITS 5.0 storage item specialization",
+  "title": "MITS Storage Item Specialization",
+  "description": "Schema for storage item specialization catalog",
   "type": "object",
   "properties": {
-    "storage_type": {
+    "code": {
       "type": "string",
-      "enum": ["CLOSET", "PANTRY", "BASEMENT", "ATTIC", "GARAGE", "SHED", "LOCKER"],
-      "description": "Type of storage space"
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "description": "UPPER_SNAKE_CASE code, must be unique within the file"
     },
-    "size_type": {
+    "name": {
       "type": "string",
-      "enum": ["SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE"],
-      "description": "Size classification of storage space"
+      "minLength": 1,
+      "description": "Short human-readable name"
     },
-    "availability": {
+    "description": {
       "type": "string",
-      "enum": ["AVAILABLE", "RESERVED", "UNAVAILABLE"],
-      "description": "Current availability status"
+      "description": "Optional detailed description"
     },
-    "reservable": {
-      "type": "boolean",
-      "description": "Whether the storage space can be reserved"
-    },
-    "unit_of_measure": {
-      "type": "string",
-      "enum": ["CUBIC_FOOT", "CUBIC_METER", "SQUARE_FOOT", "SQUARE_METER"],
-      "description": "Unit of measurement for the storage space"
-    },
-    "capacity": {
-      "type": "object",
-      "properties": {
-        "volume": {
-          "type": "number",
-          "minimum": 0
-        },
-        "weight_limit": {
-          "type": "number",
-          "minimum": 0
-        }
-      },
-      "description": "Storage capacity information"
-    },
-    "access_type": {
-      "type": "string",
-      "enum": ["PRIVATE", "SHARED", "COMMON"],
-      "description": "Type of access to the storage space"
-    },
-    "amenities": {
+    "storage_types": {
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["CLIMATE_CONTROLLED", "SECURE", "LOCKED", "VENTILATED", "LIGHTED"]
+        "enum": ["CLIMATE_CONTROLLED", "STANDARD", "OUTDOOR", "SECURE", "TEMPORARY"]
       },
-      "description": "Available amenities for the storage space"
+      "description": "Available storage types"
+    },
+    "size_categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE", "CUSTOM"]
+      },
+      "description": "Available size categories"
+    },
+    "access_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["SELF_SERVICE", "STAFF_ASSISTED", "APPOINTMENT_ONLY", "KEY_ACCESS"]
+      },
+      "description": "Available access types"
+    },
+    "units_of_measure": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["CUBIC_FOOT", "CUBIC_METER", "SQUARE_FOOT", "SQUARE_METER", "UNIT"]
+      },
+      "description": "Supported units of measure"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional array of alternative names"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional implementation notes"
     }
   },
-  "required": ["storage_type", "size_type", "availability", "reservable", "access_type"],
+  "required": ["code", "name", "storage_types", "size_categories", "access_types", "units_of_measure"],
   "additionalProperties": false
 }

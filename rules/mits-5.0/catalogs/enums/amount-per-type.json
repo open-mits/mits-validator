@@ -1,22 +1,26 @@
 [
   {
-    "code": "FIXED",
+    "code": "FIXED_AMOUNT",
     "name": "Fixed Amount",
-    "description": "A fixed dollar amount"
+    "description": "Charge is a fixed dollar amount",
+    "aliases": ["FLAT_RATE", "SET_AMOUNT"]
   },
   {
     "code": "PERCENTAGE",
     "name": "Percentage",
-    "description": "A percentage of another amount"
+    "description": "Charge is calculated as a percentage of another amount",
+    "aliases": ["PERCENT", "RATE_BASED"]
   },
   {
     "code": "PER_UNIT",
     "name": "Per Unit",
-    "description": "Amount per unit of measurement"
+    "description": "Charge is calculated per unit (square foot, person, etc.)",
+    "aliases": ["UNIT_BASED", "PER_SQFT"]
   },
   {
     "code": "TIERED",
     "name": "Tiered",
-    "description": "Amount varies by tier or level"
+    "description": "Charge varies based on tiers or brackets",
+    "aliases": ["BRACKETED", "GRADUATED"]
   }
 ]

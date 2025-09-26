@@ -1,22 +1,26 @@
 [
   {
-    "code": "ACTIVE",
-    "name": "Active",
-    "description": "Currently active and applicable"
+    "code": "APPLICATION",
+    "name": "Application",
+    "description": "Charge applies during application process",
+    "aliases": ["APPLYING", "PRE_LEASE"]
   },
   {
-    "code": "INACTIVE",
-    "name": "Inactive",
-    "description": "Not currently active"
+    "code": "MOVE_IN",
+    "name": "Move In",
+    "description": "Charge applies at move-in time",
+    "aliases": ["OCCUPANCY_START", "TENANT_START"]
   },
   {
-    "code": "DEPRECATED",
-    "name": "Deprecated",
-    "description": "No longer recommended for use"
+    "code": "OCCUPANCY",
+    "name": "Occupancy",
+    "description": "Charge applies during tenant occupancy",
+    "aliases": ["TENANT_OCCUPANCY", "ACTIVE_TENANCY"]
   },
   {
-    "code": "PENDING",
-    "name": "Pending",
-    "description": "Awaiting activation"
+    "code": "MOVE_OUT",
+    "name": "Move Out",
+    "description": "Charge applies at move-out time",
+    "aliases": ["OCCUPANCY_END", "TENANT_END"]
   }
 ]

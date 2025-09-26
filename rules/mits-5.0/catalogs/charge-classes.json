@@ -1,32 +1,37 @@
 [
   {
-    "code": "PET",
+    "code": "RENT",
+    "name": "Rent",
+    "description": "Monthly rental payment for housing unit",
+    "aliases": ["MONTHLY_RENT", "HOUSING_RENT"],
+    "notes": "Primary housing cost component"
+  },
+  {
+    "code": "DEPOSIT",
+    "name": "Security Deposit",
+    "description": "Refundable security deposit for housing unit",
+    "aliases": ["SECURITY_DEPOSIT", "REFUNDABLE_DEPOSIT"],
+    "notes": "Typically refundable upon move-out"
+  },
+  {
+    "code": "PET_FEE",
     "name": "Pet Fee",
-    "description": "Monthly or one-time fees for pet ownership",
-    "notes": "May include deposit, monthly fee, or both"
+    "description": "Non-refundable fee for pet ownership",
+    "aliases": ["PET_DEPOSIT", "ANIMAL_FEE"],
+    "notes": "May be one-time or recurring"
   },
   {
-    "code": "PARKING",
+    "code": "PARKING_FEE",
     "name": "Parking Fee",
-    "description": "Fees for parking spaces or permits",
-    "aliases": ["PARKING_PERMIT", "GARAGE_FEE"]
+    "description": "Fee for parking space or permit",
+    "aliases": ["PARKING_PERMIT", "GARAGE_FEE"],
+    "notes": "May be monthly or annual"
   },
   {
-    "code": "LEASE",
-    "name": "Lease Fee",
-    "description": "Standard lease-related fees",
-    "notes": "Base rental amount and related charges"
-  },
-  {
-    "code": "UTILITY",
+    "code": "UTILITY_FEE",
     "name": "Utility Fee",
-    "description": "Fees for utilities and services",
-    "aliases": ["UTILITIES", "SERVICES"]
-  },
-  {
-    "code": "STORAGE",
-    "name": "Storage Fee",
-    "description": "Fees for additional storage spaces",
-    "notes": "May include closets, basements, or external storage"
+    "description": "Fee for utilities not included in rent",
+    "aliases": ["UTILITIES", "UTILITY_CHARGE"],
+    "notes": "May include water, sewer, trash, etc."
   }
 ]

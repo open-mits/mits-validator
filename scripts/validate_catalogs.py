@@ -1,140 +1,107 @@
 #!/usr/bin/env python3
-"""Validate MITS 5.0 catalogs against their schemas and check for uniqueness."""
+"""Validate MITS catalog files against their JSON schemas."""
 
 import json
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Set
 
 import jsonschema
 from jsonschema import Draft202012Validator
 
 
-def validate_catalog_file(file_path: Path, schema_path: Path | None = None) -> list[str]:
-    """Validate a single catalog file against its schema."""
-    errors = []
-    
-    try:
-        with open(file_path) as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        return [f"Invalid JSON in {file_path}: {e}"]
-    
-    if schema_path and schema_path.exists():
-        try:
-            with open(schema_path) as f:
-                schema = json.load(f)
-            validator = Draft202012Validator(schema)
-            validator.validate(data)
-        except jsonschema.ValidationError as e:
-            errors.append(f"Schema validation failed for {file_path}: {e}")
-        except Exception as e:
-            errors.append(f"Error loading schema {schema_path}: {e}")
-    
-    return errors
-
-
-def check_unique_codes(file_path: Path) -> list[str]:
-    """Check for unique codes within a catalog file."""
-    errors = []
-    
-    try:
-        with open(file_path) as f:
-            data = json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError):
-        return errors  # Skip if file doesn't exist or is invalid
-    
-    if not isinstance(data, list):
-        return errors  # Skip non-array files
-    
-    codes_seen: set[str] = set()
-    for i, entry in enumerate(data):
-        if not isinstance(entry, dict) or "code" not in entry:
-            continue
-        
-        code = entry["code"]
-        if code in codes_seen:
-            errors.append(f"Duplicate code '{code}' in {file_path} (entry {i+1})")
-        codes_seen.add(code)
-    
-    return errors
-
-
-def validate_all_catalogs(rules_dir: Path = Path("rules")) -> bool:
-    """Validate all catalogs in the rules directory."""
-    errors: list[str] = []
-    
-    # Find all version directories
-    version_dirs = [d for d in rules_dir.iterdir() if d.is_dir() and d.name.startswith("mits-")]
-    
-    if not version_dirs:
-        print("No MITS version directories found in rules/")
-        return True
-    
-    for version_dir in version_dirs:
-        print(f"Validating catalogs in {version_dir.name}...")
-        
-        catalogs_dir = version_dir / "catalogs"
-        schemas_dir = version_dir / "schemas"
-        
-        if not catalogs_dir.exists():
-            print(f"  Warning: No catalogs directory in {version_dir.name}")
-            continue
-        
-        # Validate charge classes
-        charge_classes_file = catalogs_dir / "charge-classes.json"
-        if charge_classes_file.exists():
-            schema_file = schemas_dir / "charge-classes.schema.json"
-            file_errors = validate_catalog_file(charge_classes_file, schema_file)
-            errors.extend(file_errors)
-            
-            # Check for unique codes
-            code_errors = check_unique_codes(charge_classes_file)
-            errors.extend(code_errors)
-        
-        # Validate enums
-        enums_dir = catalogs_dir / "enums"
-        if enums_dir.exists():
-            enum_schema_file = schemas_dir / "enum.schema.json"
-            
-            for enum_file in enums_dir.glob("*.json"):
-                file_errors = validate_catalog_file(enum_file, enum_schema_file)
-                errors.extend(file_errors)
-                
-                # Check for unique codes
-                code_errors = check_unique_codes(enum_file)
-                errors.extend(code_errors)
-        
-        # Validate item specializations
-        specializations_dir = catalogs_dir / "item-specializations"
-        if specializations_dir.exists():
-            for spec_file in specializations_dir.glob("*.json"):
-                spec_name = spec_file.stem
-                schema_file = schemas_dir / f"{spec_name}.schema.json"
-                file_errors = validate_catalog_file(spec_file, schema_file)
-                errors.extend(file_errors)
-    
-    # Report results
-    if errors:
-        print(f"\nFound {len(errors)} validation errors:")
-        for error in errors:
-            print(f"  ❌ {error}")
-        return False
-    else:
-        print("\n✅ All catalogs validated successfully!")
-        return True
-
-
-def main() -> int:
-    """Main entry point."""
+def validate_catalogs() -> int:
+    """Validate all catalog files against their schemas."""
     rules_dir = Path("rules")
-    
     if not rules_dir.exists():
-        print("Error: rules/ directory not found")
+        print("❌ Rules directory not found")
         return 1
-    
-    success = validate_all_catalogs(rules_dir)
-    return 0 if success else 1
+
+    errors = 0
+    schemas_dir = rules_dir / "mits-5.0" / "schemas"
+    catalogs_dir = rules_dir / "mits-5.0" / "catalogs"
+
+    # Load schemas
+    schemas: Dict[str, Dict[str, Any]] = {}
+    for schema_file in schemas_dir.glob("*.schema.json"):
+        try:
+            with open(schema_file) as f:
+                schemas[schema_file.stem] = json.load(f)
+                print(f"📋 Loaded schema: {schema_file.stem}")
+        except (json.JSONDecodeError, FileNotFoundError) as e:
+            print(f"❌ Failed to load schema {schema_file}: {e}")
+            errors += 1
+
+    # Validate charge classes
+    charge_classes_file = catalogs_dir / "charge-classes.json"
+    if charge_classes_file.exists():
+        errors += validate_file_against_schema(
+            charge_classes_file, schemas.get("charge-classes.schema"), "charge-classes"
+        )
+
+    # Validate enums
+    enums_dir = catalogs_dir / "enums"
+    if enums_dir.exists():
+        for enum_file in enums_dir.glob("*.json"):
+            errors += validate_file_against_schema(
+                enum_file, schemas.get("enum.schema"), f"enum/{enum_file.name}"
+            )
+
+    # Validate specializations
+    specializations_dir = catalogs_dir / "item-specializations"
+    if specializations_dir.exists():
+        for spec_file in specializations_dir.glob("*.json"):
+            schema_name = f"{spec_file.stem}.schema"
+            errors += validate_file_against_schema(
+                spec_file, schemas.get(schema_name), f"specialization/{spec_file.name}"
+            )
+
+    if errors == 0:
+        print("✅ All catalog files are valid")
+    else:
+        print(f"❌ Found {errors} validation errors")
+
+    return errors
+
+
+def validate_file_against_schema(
+    file_path: Path, schema: Dict[str, Any] | None, file_type: str
+) -> int:
+    """Validate a single file against its schema."""
+    if not schema:
+        print(f"⚠️  No schema found for {file_type}")
+        return 0
+
+    try:
+        with open(file_path) as f:
+            data = json.load(f)
+
+        # Validate against schema
+        Draft202012Validator(schema).validate(data)
+
+        # Check for duplicate codes
+        if isinstance(data, list):
+            codes: Set[str] = set()
+            for item in data:
+                if "code" in item:
+                    if item["code"] in codes:
+                        print(f"❌ Duplicate code '{item['code']}' in {file_type}")
+                        return 1
+                    codes.add(item["code"])
+
+        print(f"✅ {file_type} is valid")
+        return 0
+
+    except json.JSONDecodeError as e:
+        print(f"❌ Invalid JSON in {file_type}: {e}")
+        return 1
+    except jsonschema.ValidationError as e:
+        print(f"❌ Schema validation failed for {file_type}: {e.message}")
+        return 1
+    except FileNotFoundError:
+        print(f"❌ File not found: {file_path}")
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(validate_catalogs())

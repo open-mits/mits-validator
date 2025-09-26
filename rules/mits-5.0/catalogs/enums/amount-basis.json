@@ -2,21 +2,25 @@
   {
     "code": "GROSS_RENT",
     "name": "Gross Rent",
-    "description": "Based on gross rental amount"
+    "description": "Based on total gross rent amount",
+    "aliases": ["TOTAL_RENT", "FULL_RENT"]
   },
   {
     "code": "NET_RENT",
     "name": "Net Rent",
-    "description": "Based on net rental amount"
+    "description": "Based on net rent after deductions",
+    "aliases": ["AFTER_DEDUCTIONS", "NET_AMOUNT"]
   },
   {
-    "code": "DEPOSIT_AMOUNT",
-    "name": "Deposit Amount",
-    "description": "Based on security deposit amount"
+    "code": "SQUARE_FOOTAGE",
+    "name": "Square Footage",
+    "description": "Based on unit square footage",
+    "aliases": ["SQFT", "AREA_BASED"]
   },
   {
-    "code": "FIXED_AMOUNT",
-    "name": "Fixed Amount",
-    "description": "Based on a fixed dollar amount"
+    "code": "NUMBER_OF_OCCUPANTS",
+    "name": "Number of Occupants",
+    "description": "Based on number of people in unit",
+    "aliases": ["HEADCOUNT", "OCCUPANT_COUNT"]
   }
 ]

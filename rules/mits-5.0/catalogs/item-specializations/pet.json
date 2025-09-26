@@ -1,12 +1,11 @@
 {
-  "pet_type": "DOG",
-  "size_category": "MEDIUM",
-  "weight_limit": 50.0,
-  "breed_restrictions": [],
-  "vaccination_required": true,
-  "spay_neuter_required": false,
-  "deposit_required": true,
-  "monthly_fee": 25.0,
-  "amenities": ["DOG_PARK", "PET_WASTE_STATION"],
-  "restrictions": ["LEASH_REQUIRED", "QUIET_HOURS"]
+  "code": "PET_SERVICE",
+  "name": "Pet Service",
+  "description": "Service or accommodation for pets",
+  "pet_types": ["DOG", "CAT", "BIRD", "FISH", "REPTILE", "SMALL_MAMMAL", "OTHER"],
+  "size_categories": ["SMALL", "MEDIUM", "LARGE", "GIANT", "ALL_SIZES"],
+  "service_types": ["BOARDING", "DAYCARE", "GROOMING", "TRAINING", "VETERINARY", "WALKING"],
+  "units_of_measure": ["HOUR", "DAY", "WEEK", "MONTH", "SERVICE", "SESSION"],
+  "aliases": ["ANIMAL_SERVICE", "PET_ACCOMMODATION"],
+  "notes": "Pet-related service specialization"
 }

@@ -2,26 +2,25 @@
   {
     "code": "MONTHLY",
     "name": "Monthly",
-    "description": "Charged every month"
+    "description": "Payment due monthly",
+    "aliases": ["EVERY_MONTH", "MONTHLY_BASIS"]
+  },
+  {
+    "code": "QUARTERLY",
+    "name": "Quarterly",
+    "description": "Payment due every three months",
+    "aliases": ["EVERY_QUARTER", "THREE_MONTHLY"]
   },
   {
     "code": "ANNUALLY",
     "name": "Annually",
-    "description": "Charged once per year"
+    "description": "Payment due yearly",
+    "aliases": ["YEARLY", "ONCE_PER_YEAR"]
   },
   {
     "code": "ONE_TIME",
     "name": "One Time",
-    "description": "Charged only once"
-  },
-  {
-    "code": "WEEKLY",
-    "name": "Weekly",
-    "description": "Charged every week"
-  },
-  {
-    "code": "DAILY",
-    "name": "Daily",
-    "description": "Charged every day"
+    "description": "Single payment, not recurring",
+    "aliases": ["SINGLE_PAYMENT", "NON_RECURRING"]
   }
 ]

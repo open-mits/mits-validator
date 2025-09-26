@@ -2,21 +2,25 @@
   {
     "code": "LEASE_TERM",
     "name": "Lease Term",
-    "description": "Based on the duration of the lease"
-  },
-  {
-    "code": "OCCUPANCY",
-    "name": "Occupancy",
-    "description": "Based on occupancy period"
+    "description": "Based on the duration of the lease agreement",
+    "aliases": ["CONTRACT_PERIOD", "AGREEMENT_LENGTH"]
   },
   {
     "code": "CALENDAR_YEAR",
     "name": "Calendar Year",
-    "description": "Based on calendar year"
+    "description": "Based on calendar year (January to December)",
+    "aliases": ["YEARLY", "ANNUAL_CYCLE"]
   },
   {
     "code": "FISCAL_YEAR",
     "name": "Fiscal Year",
-    "description": "Based on fiscal year"
+    "description": "Based on fiscal year (varies by organization)",
+    "aliases": ["FINANCIAL_YEAR", "BUDGET_YEAR"]
+  },
+  {
+    "code": "MONTHLY",
+    "name": "Monthly",
+    "description": "Based on monthly cycles",
+    "aliases": ["MONTHLY_CYCLE", "EVERY_MONTH"]
   }
 ]

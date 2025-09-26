@@ -1,66 +1,67 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mits.org/schemas/mits-5.0/pet.schema.json",
-  "title": "MITS 5.0 Pet Specialization Schema",
-  "description": "Schema for MITS 5.0 pet item specialization",
+  "title": "MITS Pet Item Specialization",
+  "description": "Schema for pet item specialization catalog",
   "type": "object",
   "properties": {
-    "pet_type": {
+    "code": {
       "type": "string",
-      "enum": ["DOG", "CAT", "BIRD", "FISH", "REPTILE", "SMALL_MAMMAL", "OTHER"],
-      "description": "Type of pet allowed"
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "description": "UPPER_SNAKE_CASE code, must be unique within the file"
     },
-    "size_category": {
+    "name": {
       "type": "string",
-      "enum": ["SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE"],
-      "description": "Size category of the pet"
+      "minLength": 1,
+      "description": "Short human-readable name"
     },
-    "weight_limit": {
-      "type": "number",
-      "minimum": 0,
-      "description": "Maximum weight allowed for the pet"
+    "description": {
+      "type": "string",
+      "description": "Optional detailed description"
     },
-    "breed_restrictions": {
+    "pet_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["DOG", "CAT", "BIRD", "FISH", "REPTILE", "SMALL_MAMMAL", "OTHER"]
+      },
+      "description": "Supported pet types"
+    },
+    "size_categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["SMALL", "MEDIUM", "LARGE", "GIANT", "ALL_SIZES"]
+      },
+      "description": "Available size categories"
+    },
+    "service_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["BOARDING", "DAYCARE", "GROOMING", "TRAINING", "VETERINARY", "WALKING"]
+      },
+      "description": "Available service types"
+    },
+    "units_of_measure": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["HOUR", "DAY", "WEEK", "MONTH", "SERVICE", "SESSION"]
+      },
+      "description": "Supported units of measure"
+    },
+    "aliases": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "List of restricted breeds (if any)"
+      "description": "Optional array of alternative names"
     },
-    "vaccination_required": {
-      "type": "boolean",
-      "description": "Whether vaccination records are required"
-    },
-    "spay_neuter_required": {
-      "type": "boolean",
-      "description": "Whether spay/neuter is required"
-    },
-    "deposit_required": {
-      "type": "boolean",
-      "description": "Whether a pet deposit is required"
-    },
-    "monthly_fee": {
-      "type": "number",
-      "minimum": 0,
-      "description": "Monthly pet fee amount"
-    },
-    "amenities": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": ["PET_WASH", "DOG_PARK", "PET_WASTE_STATION", "PET_FRIENDLY_COMMON_AREAS"]
-      },
-      "description": "Available pet amenities"
-    },
-    "restrictions": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": ["NO_BREEDING", "NO_BOARDING", "LEASH_REQUIRED", "QUIET_HOURS"]
-      },
-      "description": "Pet-related restrictions"
+    "notes": {
+      "type": "string",
+      "description": "Optional implementation notes"
     }
   },
-  "required": ["pet_type", "size_category", "vaccination_required", "deposit_required"],
+  "required": ["code", "name", "pet_types", "size_categories", "service_types", "units_of_measure"],
   "additionalProperties": false
 }
