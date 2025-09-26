@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import httpx
 import typer
@@ -9,7 +10,7 @@ from typer import Option
 
 from mits_validator import __version__
 from mits_validator.models import ValidationRequest
-from mits_validator.validation import ValidationEngine, build_v1_envelope
+from mits_validator.validation_engine import ValidationEngine, build_v1_envelope
 
 app = typer.Typer(name="mits-validate", add_completion=False, help="MITS XML feed validator CLI")
 

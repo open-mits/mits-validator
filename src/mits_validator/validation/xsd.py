@@ -107,7 +107,7 @@ def validate_xsd(
         # Validate against schema
         try:
             schema.assertValid(xml_doc)
-        except etree.DocumentInvalid as e:
+        except etree.DocumentInvalid:
             # Parse validation errors
             for error in schema.error_log:
                 findings.append(

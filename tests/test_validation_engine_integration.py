@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from mits_validator.validation import ValidationEngine
+from mits_validator.validation_engine import ValidationEngine
 
 
 class TestValidationEngineIntegration:

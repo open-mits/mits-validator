@@ -19,6 +19,7 @@ from mits_validator.models import (
     ValidationResult,
 )
 from mits_validator.profile_loader import get_profile_loader
+from mits_validator.profile_models import ProfileConfig
 
 
 class ValidationLevelProtocol(Protocol):

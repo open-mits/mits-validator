@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import time
-from typing import Any
-
 import httpx
 
 from mits_validator.models import Finding, FindingLevel

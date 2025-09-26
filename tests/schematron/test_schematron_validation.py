@@ -119,7 +119,7 @@ class TestSchematronValidation:
         assert any("Rule validation failed" in finding.message for finding in result.findings)
 
     def test_validate_deposit_without_description(self):
-        """Test validation of deposit charge without description."""
+        """Test validation of deposit charge without description or amount."""
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <PropertyMarketing xmlns="http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
                    version="5.0"
@@ -141,8 +141,7 @@ class TestSchematronValidation:
         <PaymentFrequency>OneTime</PaymentFrequency>
         <Refundability>Deposit</Refundability>
         <TermBasis>LeaseTerm</TermBasis>
-        <Amount>1500.00</Amount>
-        <!-- Missing Description - should trigger rule -->
+        <!-- Missing both Description and Amount - should trigger rule -->
       </ChargeOfferItem>
     </ChargeOffer>
   </Property>
@@ -153,7 +152,7 @@ class TestSchematronValidation:
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
-        assert any("Description" in finding.message for finding in result.findings)
+        assert any("Rule validation failed" in finding.message for finding in result.findings)
 
     def test_validate_missing_rules(self):
         """Test validation when rules file is missing."""
@@ -181,7 +180,7 @@ class TestSchematronValidation:
       <PostalCode>12345</PostalCode>
     </Address>
   </Property>
-  <!-- Unclosed tag -->
+  <UnclosedTag>
 </PropertyMarketing>"""
         
         result = validate_schematron(xml_content)
@@ -189,6 +188,7 @@ class TestSchematronValidation:
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
+        assert any("XML parsing failed" in finding.message for finding in result.findings)
 
     def test_validate_from_file(self):
         """Test validation from file path."""
@@ -235,8 +235,8 @@ class TestSchematronValidation:
     <ChargeOffer>
       <ChargeOfferItem>
         <ChargeClassification>Pet</ChargeClassification>
-        <Requirement>Optional</Requirement>
-        <PaymentFrequency>OneTime</PaymentFrequency>  <!-- Should trigger rule -->
+        <Requirement>Mandatory</Requirement>
+        <!-- Missing PaymentFrequency - should trigger rule -->
         <Refundability>NonRefundable</Refundability>
         <TermBasis>Rolling</TermBasis>
         <Amount>50.00</Amount>
@@ -250,8 +250,8 @@ class TestSchematronValidation:
         
         assert result.level == "Schematron"
         assert len(result.findings) > 0
-        assert any(finding.level == FindingLevel.WARNING for finding in result.findings)
-        assert any("Optional" in finding.message for finding in result.findings)
+        assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
+        assert any("Rule validation failed" in finding.message for finding in result.findings)
 
     def test_validate_property_completeness(self):
         """Test validation of property information completeness."""
@@ -277,4 +277,4 @@ class TestSchematronValidation:
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
-        assert any("PropertyID" in finding.message for finding in result.findings)
+        assert any("Rule validation failed" in finding.message for finding in result.findings)

@@ -131,6 +131,22 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         remediation="Fix XML syntax errors",
         level="XSD",
     ),
+    "XSD:XML_PARSE_ERROR": ErrorDefinition(
+        code="XSD:XML_PARSE_ERROR",
+        severity=FindingLevel.ERROR,
+        title="XML parse error in XSD",
+        description="Failed to parse XML for XSD validation",
+        remediation="Check XML syntax and structure",
+        level="XSD",
+    ),
+    "XSD:SCHEMA_PARSE_ERROR": ErrorDefinition(
+        code="XSD:SCHEMA_PARSE_ERROR",
+        severity=FindingLevel.ERROR,
+        title="XSD schema parse error",
+        description="Failed to parse XSD schema file",
+        remediation="Check XSD schema syntax",
+        level="XSD",
+    ),
     # Schematron errors
     "SCHEMATRON:RULES_MISSING": ErrorDefinition(
         code="SCHEMATRON:RULES_MISSING",
@@ -303,6 +319,30 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         title="Schematron rule failed",
         description="XML failed Schematron business rule validation",
         remediation="Review and fix the business rule violation",
+        level="schematron",
+    ),
+    "SCHEMATRON:VALIDATION_ERROR": ErrorDefinition(
+        code="SCHEMATRON:VALIDATION_ERROR",
+        severity=FindingLevel.ERROR,
+        title="Schematron validation error",
+        description="Schematron validation process failed",
+        remediation="Check Schematron rules and XML content",
+        level="schematron",
+    ),
+    "SCHEMATRON:XML_PARSE_ERROR": ErrorDefinition(
+        code="SCHEMATRON:XML_PARSE_ERROR",
+        severity=FindingLevel.ERROR,
+        title="XML parse error in Schematron",
+        description="Failed to parse XML for Schematron validation",
+        remediation="Check XML syntax and structure",
+        level="schematron",
+    ),
+    "SCHEMATRON:RULES_PARSE_ERROR": ErrorDefinition(
+        code="SCHEMATRON:RULES_PARSE_ERROR",
+        severity=FindingLevel.ERROR,
+        title="Schematron rules parse error",
+        description="Failed to parse Schematron rules file",
+        remediation="Check Schematron rules syntax",
         level="schematron",
     ),
     # Semantic errors
