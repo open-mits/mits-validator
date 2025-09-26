@@ -9,11 +9,13 @@ from mits_validator.cli import app, version
 
 runner = CliRunner()
 
+
 def test_cli_version() -> None:
     """Test CLI version command."""
     result = runner.invoke(app, ["version"])
     assert result.exit_code == 0
     assert __version__ in result.output
+
 
 def test_cli_help() -> None:
     """Test CLI help command."""
@@ -21,15 +23,16 @@ def test_cli_help() -> None:
     assert result.exit_code == 0
     assert "MITS XML feed validator CLI" in result.output
 
+
 def test_version_function() -> None:
     """Test version function directly."""
     # This is a bit of a hack, but we need to test the function
     # We'll capture the output
     from io import StringIO
-    
+
     old_stdout = sys.stdout
     sys.stdout = StringIO()
-    
+
     try:
         version()
         output = sys.stdout.getvalue()

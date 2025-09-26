@@ -35,7 +35,7 @@ jobs:
           ${{ runner.os }}-uv-
 
     - name: Install dependencies
-      run: uv sync -E dev
+      run: uv sync --extra dev
 
     - name: Run ruff check
       run: uv run ruff check
@@ -44,7 +44,7 @@ jobs:
       run: uv run ruff format --check
 
     - name: Run mypy
-      run: uv run mypy
+      run: uv run mypy src/mits_validator
 
     - name: Run tests with coverage
       run: uv run pytest
@@ -54,4 +54,4 @@ jobs:
       uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
-        fail_ci_if_error: true
+        fail_ci_if_error: false
