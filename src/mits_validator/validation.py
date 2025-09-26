@@ -8,10 +8,16 @@ from typing import Any, Protocol
 from xml.etree.ElementTree import ParseError
 
 import lxml.etree as ET
-from pydantic import BaseModel, Field
 
 from mits_validator.levels import SchematronValidator, XSDValidator
-from mits_validator.models import Finding, FindingLevel, Location, ValidationLevel, ValidationResult
+from mits_validator.models import (
+    Finding,
+    FindingLevel,
+    Location,
+    ValidationLevel,
+    ValidationRequest,
+    ValidationResult,
+)
 from mits_validator.profiles import get_profile
 
 
@@ -167,57 +173,73 @@ class ValidationEngine:
         }
 
 
-class ValidationRequest(BaseModel):
-    """Request model for validation."""
+def build_v1_envelope(
+    request: ValidationRequest,
+    results: list[ValidationResult],
+    profile_name: str = "default",
+    duration_ms: int = 0,
+) -> dict[str, Any]:
+    """Build a v1 response envelope from validation results."""
+    from datetime import datetime
 
-    source: str = Field(..., description="Source type: 'file' or 'url'")
-    url: str | None = Field(None, description="URL if source is 'url'")
-    filename: str | None = Field(None, description="Filename if source is 'file'")
-    size_bytes: int = Field(..., description="Size in bytes")
-    content_type: str = Field(..., description="Content type")
+    import fastapi
+    import lxml
 
+    # Collect all findings
+    all_findings = []
+    levels_executed = []
 
-class ValidationResponse(BaseModel):
-    """Structured validation response envelope."""
+    for result in results:
+        levels_executed.append(result.level.value)
+        for finding in result.findings:
+            finding_dict: dict[str, Any] = {
+                "level": finding.level.value,
+                "code": finding.code,
+                "message": finding.message,
+                "rule_ref": finding.rule_ref,
+            }
+            if finding.location:
+                finding_dict["location"] = {
+                    "line": finding.location.line,
+                    "column": finding.location.column,
+                    "xpath": finding.location.xpath,
+                }
+            all_findings.append(finding_dict)
 
-    api_version: str = "1.0"
-    validator: dict[str, Any] = Field(
-        default_factory=lambda: {
+    # Count errors and warnings
+    errors = sum(1 for f in all_findings if f["level"] == "error")
+    warnings = sum(1 for f in all_findings if f["level"] == "warning")
+
+    return {
+        "api_version": "1.0",
+        "validator": {
             "name": "mits-validator",
             "spec_version": "unversioned",
-            "profile": "default",
-            "levels_executed": ["WellFormed"],
-            "levels_available": ["WellFormed"],
-        }
-    )
-    input: ValidationRequest
-    summary: dict[str, Any] = Field(
-        default_factory=lambda: {"valid": True, "errors": 0, "warnings": 0, "duration_ms": 0}
-    )
-    findings: list[dict[str, Any]] = Field(default_factory=list)
-    derived: dict[str, Any] = Field(default_factory=dict)
-    metadata: dict[str, Any] = Field(
-        default_factory=lambda: {"request_id": str(uuid.uuid4()), "timestamp": "", "engine": {}}
-    )
-
-    def model_post_init(self, __context: Any) -> None:
-        """Post-initialization to set computed fields."""
-        from datetime import datetime
-
-        import fastapi
-        import lxml
-
-        # Set timestamp
-        self.metadata["timestamp"] = datetime.now(UTC).isoformat()
-
-        # Set engine versions
-        self.metadata["engine"] = {"fastapi": fastapi.__version__, "lxml": lxml.__version__}
-
-        # Set levels executed
-        self.validator["levels_executed"] = ["WellFormed"]
-
-        # Compute summary from findings
-        errors = sum(1 for f in self.findings if f.get("level") == "error")
-        warnings = sum(1 for f in self.findings if f.get("level") == "warning")
-
-        self.summary.update({"valid": errors == 0, "errors": errors, "warnings": warnings})
+            "profile": profile_name,
+            "levels_available": ["WellFormed", "XSD", "Schematron"],
+            "levels_executed": levels_executed,
+        },
+        "input": {
+            "source": request.source,
+            "url": request.url,
+            "filename": request.filename,
+            "size_bytes": request.size_bytes,
+            "content_type": request.content_type,
+        },
+        "summary": {
+            "valid": errors == 0,
+            "errors": errors,
+            "warnings": warnings,
+            "duration_ms": duration_ms,
+        },
+        "findings": all_findings,
+        "derived": {},
+        "metadata": {
+            "request_id": str(uuid.uuid4()),
+            "timestamp": datetime.now(UTC).isoformat(),
+            "engine": {
+                "fastapi": fastapi.__version__,
+                "lxml": lxml.__version__,
+            },
+        },
+    }

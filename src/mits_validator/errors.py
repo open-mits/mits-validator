@@ -14,6 +14,8 @@ class ErrorCategory(str, Enum):
     XSD = "XSD"
     SCHEMATRON = "SCHEMATRON"
     ENGINE = "ENGINE"
+    NETWORK = "NETWORK"
+    URL = "URL"
 
 
 @dataclass
@@ -69,6 +71,14 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         title="Invalid URL format",
         description="URL must start with http:// or https://",
         remediation="Provide a valid HTTP or HTTPS URL",
+        level="intake",
+    ),
+    "INTAKE:UNSUPPORTED_MEDIA_TYPE": ErrorDefinition(
+        code="INTAKE:UNSUPPORTED_MEDIA_TYPE",
+        severity=FindingLevel.ERROR,
+        title="Unsupported media type",
+        description="Content type is not supported for XML validation",
+        remediation="Use application/xml, text/xml, or application/octet-stream content type",
         level="intake",
     ),
     # WellFormed errors
@@ -146,6 +156,67 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         description="Some validation rules could not be loaded",
         remediation="Check rule configuration and file paths",
         level="engine",
+    ),
+    # Network errors
+    "NETWORK:TIMEOUT": ErrorDefinition(
+        code="NETWORK:TIMEOUT",
+        severity=FindingLevel.ERROR,
+        title="Network timeout",
+        description="Request to fetch URL content timed out",
+        remediation="Check network connectivity and try again with a shorter timeout",
+        level="network",
+    ),
+    "NETWORK:CONNECTION_ERROR": ErrorDefinition(
+        code="NETWORK:CONNECTION_ERROR",
+        severity=FindingLevel.ERROR,
+        title="Connection failed",
+        description="Failed to establish connection to the URL",
+        remediation="Check URL accessibility and network connectivity",
+        level="network",
+    ),
+    "NETWORK:HTTP_STATUS": ErrorDefinition(
+        code="NETWORK:HTTP_STATUS",
+        severity=FindingLevel.ERROR,
+        title="HTTP error status",
+        description="URL returned an HTTP error status code",
+        remediation="Check if URL is accessible and returns valid content",
+        level="network",
+    ),
+    "NETWORK:REQUEST_ERROR": ErrorDefinition(
+        code="NETWORK:REQUEST_ERROR",
+        severity=FindingLevel.ERROR,
+        title="Request failed",
+        description="Network request failed for an unknown reason",
+        remediation="Check URL validity and network connectivity",
+        level="network",
+    ),
+    "NETWORK:FETCH_ERROR": ErrorDefinition(
+        code="NETWORK:FETCH_ERROR",
+        severity=FindingLevel.ERROR,
+        title="URL fetch failed",
+        description="Failed to fetch content from URL",
+        remediation="Check URL accessibility and network connectivity",
+        level="network",
+    ),
+    # URL errors
+    "URL:INTAKE_ACKNOWLEDGED": ErrorDefinition(
+        code="URL:INTAKE_ACKNOWLEDGED",
+        severity=FindingLevel.INFO,
+        title="URL intake acknowledged",
+        description="URL intake acknowledged but fetching not implemented",
+        remediation="URL validation is experimental - use file upload for full validation",
+        level="url",
+    ),
+    # Schematron errors
+    "SCHEMATRON:NO_RULES_LOADED": ErrorDefinition(
+        code="SCHEMATRON:NO_RULES_LOADED",
+        severity=FindingLevel.INFO,
+        title="Schematron rules not loaded",
+        description="No Schematron rules available for validation",
+        remediation=(
+            "Add Schematron rules to rules/schematron/ directory for cross-field validation"
+        ),
+        level="schematron",
     ),
 }
 

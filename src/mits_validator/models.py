@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 
 class FindingLevel(str, Enum):
@@ -48,3 +49,28 @@ class ValidationResult:
     level: ValidationLevel
     findings: list[Finding]
     duration_ms: int
+
+
+@dataclass
+class ValidationRequest:
+    """Request for validation."""
+
+    content: bytes
+    content_type: str
+    source: str  # "file" or "url"
+    url: str | None = None
+    filename: str | None = None
+    size_bytes: int | None = None
+
+
+@dataclass
+class ValidationResponse:
+    """Response envelope for validation results."""
+
+    api_version: str = "1.0"
+    validator: dict[str, Any] | None = None
+    input: dict[str, Any] | None = None
+    summary: dict[str, Any] | None = None
+    findings: list[dict[str, Any]] | None = None
+    derived: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.mits.org/schema"
+           xmlns:mits="http://www.mits.org/schema"
+           elementFormDefault="qualified">
+
+  <!-- Root element for MITS feed -->
+  <xs:element name="MITS" type="mits:MITSFeedType">
+    <xs:annotation>
+      <xs:documentation>Root element for MITS (Property Marketing / ILS) XML feed</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- MITS Feed Type -->
+  <xs:complexType name="MITSFeedType">
+    <xs:sequence>
+      <xs:element name="Header" type="mits:HeaderType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Property" type="mits:PropertyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="version" type="xs:string" use="required" fixed="1.0"/>
+  </xs:complexType>
+
+  <!-- Header Type -->
+  <xs:complexType name="HeaderType">
+    <xs:sequence>
+      <xs:element name="Provider" type="mits:ProviderType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Timestamp" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Provider Type -->
+  <xs:complexType name="ProviderType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Contact" type="mits:ContactType" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Contact Type -->
+  <xs:complexType name="ContactType">
+    <xs:sequence>
+      <xs:element name="Email" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Property Type -->
+  <xs:complexType name="PropertyType">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Address" type="mits:AddressType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Price" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Address Type -->
+  <xs:complexType name="AddressType">
+    <xs:sequence>
+      <xs:element name="Street" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="City" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="State" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ZipCode" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

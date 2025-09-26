@@ -31,6 +31,7 @@ dependencies = [
   "httpx>=0.27.2",
   "typer>=0.12.0",
   "python-multipart>=0.0.6",
+  "jsonschema>=4.25.1",
 ]
 
 # ---- EXTRAS ----
@@ -44,6 +45,7 @@ dev = [
   "coverage[toml]>=7.6.0",
   "pre-commit>=4.0.0",
   "bandit>=1.7.9",
+  "jsonschema>=4.0.0",
 ]
 docs = [
   "mkdocs>=1.6.0",

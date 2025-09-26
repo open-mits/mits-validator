@@ -7,18 +7,16 @@ from datetime import UTC, datetime
 from typing import Any
 
 import fastapi
+import httpx
 import lxml
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 
 from mits_validator import __version__
 from mits_validator.findings import create_finding
+from mits_validator.models import ValidationRequest, ValidationResponse
 from mits_validator.profiles import get_profile
-from mits_validator.validation import (
-    ValidationEngine,
-    ValidationRequest,
-    ValidationResponse,
-)
+from mits_validator.validation import ValidationEngine, build_v1_envelope
 
 # Create default values to avoid B008 error
 DEFAULT_FILE = File(None)
@@ -51,7 +49,9 @@ app = FastAPI(
 validation_engine = ValidationEngine()
 
 
-def _create_error_response(finding: dict[str, Any], status_code: int) -> JSONResponse:
+def _create_error_response(
+    finding: dict[str, Any], status_code: int, source: str = "unknown"
+) -> JSONResponse:
     """Create a standardized error response with result envelope."""
     response_data: dict[str, Any] = {
         "api_version": "1.0",
@@ -63,7 +63,7 @@ def _create_error_response(finding: dict[str, Any], status_code: int) -> JSONRes
             "levels_available": validation_engine.get_available_levels(),
         },
         "input": {
-            "source": "unknown",
+            "source": source,
             "url": None,
             "filename": None,
             "size_bytes": 0,
@@ -137,11 +137,11 @@ async def validate(
     # Validate input parameters with defensive error handling
     if file and url:
         error_finding = create_finding("INTAKE:BOTH_INPUTS")
-        return _create_error_response(error_finding, 400)
+        return _create_error_response(error_finding, 400, "file")
 
     if not file and not url:
         error_finding = create_finding("INTAKE:NO_INPUTS")
-        return _create_error_response(error_finding, 400)
+        return _create_error_response(error_finding, 400, "unknown")
 
     # Process file upload
     if file:
@@ -166,10 +166,10 @@ async def _validate_file_upload(
     content_type = file.content_type or "application/octet-stream"
     if not _is_acceptable_content_type(content_type, validation_profile.allowed_content_types):
         error_finding = create_finding(
-            "INTAKE:UNACCEPTABLE_CONTENT_TYPE",
+            "INTAKE:UNSUPPORTED_MEDIA_TYPE",
             f"Content type '{content_type}' not allowed for profile '{validation_profile.name}'",
         )
-        return _create_error_response(error_finding, 415)
+        return _create_error_response(error_finding, 415, "file")
 
     # Read and check file size with profile limits
     content = await file.read()
@@ -180,15 +180,16 @@ async def _validate_file_upload(
         error_finding = create_finding(
             "INTAKE:TOO_LARGE", f"File size {size_bytes} bytes exceeds limit {max_size_bytes} bytes"
         )
-        return _create_error_response(error_finding, 413)
+        return _create_error_response(error_finding, 413, "file")
 
     # Create validation request
     validation_request = ValidationRequest(
+        content=content,
+        content_type=content_type,
         source="file",
         url=None,
         filename=file.filename,
         size_bytes=size_bytes,
-        content_type=content_type,
     )
 
     # Initialize validation engine with profile
@@ -197,26 +198,19 @@ async def _validate_file_upload(
     # Perform validation with all levels in profile
     results = engine.validate(content, content_type)
 
-    # Build response
-    response = ValidationResponse(
-        input=validation_request,
-        findings=_build_findings_from_results(results),
-    )
-
-    # Update validator info with profile data
-    profile_info = engine.get_profile_info()
-    response.validator.update(
-        {
-            "profile": profile_info["name"],
-            "levels_executed": [result.level.value for result in results],
-            "levels_available": engine.get_available_levels(),
-        }
+    # Build v1 envelope
+    duration_ms = int((time.time() - start_time) * 1000)
+    response_data = build_v1_envelope(
+        validation_request, results, profile or "default", duration_ms
     )
 
     # Add request ID header
     return JSONResponse(
-        content=response.model_dump(),
-        headers={"X-Request-Id": response.metadata["request_id"], "Cache-Control": "no-store"},
+        content=response_data,
+        headers={
+            "X-Request-Id": response_data["metadata"]["request_id"],
+            "Cache-Control": "no-store",
+        },
     )
 
 
@@ -229,52 +223,89 @@ async def _validate_url(
         error_finding = create_finding(
             "INTAKE:INVALID_URL", f"URL '{url}' must start with http:// or https://"
         )
-        return _create_error_response(error_finding, 422)
+        return _create_error_response(error_finding, 422, "url")
 
     # Get validation profile (for future use)
     _ = get_profile(profile)
 
-    # For now, just acknowledge URL intake without fetching
-    # TODO: Implement actual URL fetching in future milestone
-    validation_request = ValidationRequest(
-        source="url",
-        url=url,
-        filename=None,
-        size_bytes=0,  # Unknown until fetched
-        content_type="application/xml",  # Assume XML for URLs
-    )
+    # Fetch URL content with network error handling
+    try:
+        content, content_type, size_bytes = await _fetch_url_content(url, max_size_mb)
+        
+        # Create validation request with fetched content
+        validation_request = ValidationRequest(
+            content=content,
+            content_type=content_type,
+            source="url",
+            url=url,
+            filename=None,
+            size_bytes=size_bytes,
+        )
 
-    # Initialize validation engine with profile
-    engine = ValidationEngine(profile=profile)
+        # Initialize validation engine with profile
+        engine = ValidationEngine(profile=profile)
 
-    # Create a minimal response for URL intake
-    response = ValidationResponse(
-        input=validation_request,
-        findings=[
-            {
-                "level": "info",
-                "code": "URL:INTAKE_ACKNOWLEDGED",
-                "message": "URL intake acknowledged. Actual fetching not yet implemented.",
-                "location": None,
-                "rule_ref": "internal://URL",
-            }
-        ],
-    )
+        # Perform validation with all levels in profile
+        results = engine.validate(content, content_type)
 
-    # Update validator info with profile data
-    profile_info = engine.get_profile_info()
-    response.validator.update(
-        {
-            "profile": profile_info["name"],
-            "levels_executed": [],
-            "levels_available": engine.get_available_levels(),
-        }
-    )
+        # Build v1 envelope
+        duration_ms = int((time.time() - start_time) * 1000)
+        response_data = build_v1_envelope(
+            validation_request, results, profile or "default", duration_ms
+        )
+
+    except Exception as e:
+        # Network or other error occurred
+        error_finding = create_finding(
+            "NETWORK:FETCH_ERROR", f"Failed to fetch URL: {str(e)}"
+        )
+        return _create_error_response(error_finding, 502, "url")
 
     return JSONResponse(
-        content=response.model_dump(),
-        headers={"X-Request-Id": response.metadata["request_id"], "Cache-Control": "no-store"},
+        content=response_data,
+        headers={
+            "X-Request-Id": response_data["metadata"]["request_id"],
+            "Cache-Control": "no-store",
+        },
     )
+
+
+async def _fetch_url_content(url: str, max_size_mb: int) -> tuple[bytes, str, int]:
+    """Fetch URL content with size limits and timeout handling."""
+    max_size_bytes = max_size_mb * 1024 * 1024
+    timeout = httpx.Timeout(connect=10.0, read=30.0, write=10.0, pool=5.0)
+    
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+        try:
+            async with client.stream("GET", url) as response:
+                # Check HTTP status
+                if response.status_code >= 400:
+                    raise httpx.HTTPStatusError(
+                        f"HTTP {response.status_code}", request=response.request, response=response
+                    )
+                
+                # Get content type
+                content_type = response.headers.get("content-type", "application/octet-stream")
+                
+                # Stream content with size limit
+                content = b""
+                async for chunk in response.aiter_bytes():
+                    content += chunk
+                    if len(content) > max_size_bytes:
+                        raise httpx.RequestError(
+                            f"Content size exceeds limit of {max_size_bytes} bytes"
+                        )
+                
+                return content, content_type, len(content)
+                
+        except httpx.TimeoutException as e:
+            raise Exception(f"NETWORK:TIMEOUT - Request timed out: {str(e)}") from e
+        except httpx.ConnectError as e:
+            raise Exception(f"NETWORK:CONNECTION_ERROR - Connection failed: {str(e)}") from e
+        except httpx.HTTPStatusError as e:
+            raise Exception(f"NETWORK:HTTP_STATUS - HTTP {e.response.status_code}: {str(e)}") from e
+        except httpx.RequestError as e:
+            raise Exception(f"NETWORK:REQUEST_ERROR - {str(e)}") from e
 
 
 def _is_acceptable_content_type(content_type: str, allowed_types: list[str] | None = None) -> bool:
@@ -287,29 +318,3 @@ def _is_acceptable_content_type(content_type: str, allowed_types: list[str] | No
             "text/plain",  # Allow with warning
         ]
     return any(ct in content_type.lower() for ct in allowed_types)
-
-
-def _build_findings_from_results(results: list[Any]) -> list[dict[str, Any]]:
-    """Convert validation results to findings format."""
-    findings = []
-    for result in results:
-        for finding in result.findings:
-            finding_dict = {
-                "level": finding.level.value,
-                "code": finding.code,
-                "message": finding.message,
-                "rule_ref": finding.rule_ref,
-            }
-
-            if finding.location:
-                finding_dict["location"] = {
-                    "line": finding.location.line,
-                    "column": finding.location.column,
-                    "xpath": finding.location.xpath,
-                }
-            else:
-                finding_dict["location"] = None
-
-            findings.append(finding_dict)
-
-    return findings

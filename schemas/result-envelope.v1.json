@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://open-mits.github.io/mits-validator/schemas/result-envelope.v1.json",
+  "title": "MITS Validator Response Envelope v1",
+  "description": "Standardized response envelope for MITS Validator API v1",
+  "type": "object",
+  "required": [
+    "api_version",
+    "validator",
+    "input",
+    "summary",
+    "findings",
+    "metadata"
+  ],
+  "properties": {
+    "api_version": {
+      "type": "string",
+      "description": "Response schema version",
+      "const": "1.0"
+    },
+    "validator": {
+      "type": "object",
+      "required": ["name", "spec_version", "profile", "levels_available", "levels_executed"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Validator service name"
+        },
+        "spec_version": {
+          "type": "string",
+          "description": "MITS specification version being validated"
+        },
+        "profile": {
+          "type": "string",
+          "description": "Validation profile used"
+        },
+        "levels_available": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Available validation levels in this build"
+        },
+        "levels_executed": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Validation levels that were executed"
+        }
+      },
+      "additionalProperties": true
+    },
+    "input": {
+      "type": "object",
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["file", "url"],
+          "description": "Input source type"
+        },
+        "url": {
+          "type": ["string", "null"],
+          "description": "Source URL when source is 'url'"
+        },
+        "filename": {
+          "type": ["string", "null"],
+          "description": "Original filename when source is 'file'"
+        },
+        "size_bytes": {
+          "type": ["integer", "null"],
+          "description": "Input size in bytes when known"
+        },
+        "content_type": {
+          "type": ["string", "null"],
+          "description": "Content type when known"
+        }
+      },
+      "additionalProperties": true
+    },
+    "summary": {
+      "type": "object",
+      "required": ["valid", "errors", "warnings", "duration_ms"],
+      "properties": {
+        "valid": {
+          "type": "boolean",
+          "description": "Whether validation passed without errors"
+        },
+        "errors": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of error findings"
+        },
+        "warnings": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of warning findings"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total validation duration in milliseconds"
+        }
+      },
+      "additionalProperties": true
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["level", "code", "message"],
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": ["error", "warning", "info"],
+            "description": "Finding severity level"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z_]+:[A-Z_]+$",
+            "description": "Stable error code in CATEGORY:SUBCODE format"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable finding message"
+          },
+          "location": {
+            "type": ["object", "null"],
+            "properties": {
+              "line": {"type": ["integer", "null"]},
+              "column": {"type": ["integer", "null"]},
+              "xpath": {"type": ["string", "null"]}
+            },
+            "description": "Location information when available"
+          },
+          "rule_ref": {
+            "type": "string",
+            "description": "Reference to the rule that generated this finding"
+          }
+        },
+        "additionalProperties": true
+      },
+      "description": "List of validation findings"
+    },
+    "derived": {
+      "type": "object",
+      "description": "Reserved for future use",
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["request_id", "timestamp"],
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique request identifier"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Response timestamp in ISO-8601 format"
+        },
+        "engine": {
+          "type": "object",
+          "description": "Component versions",
+          "additionalProperties": {"type": "string"}
+        },
+        "limits": {
+          "type": "object",
+          "description": "Configured limits",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

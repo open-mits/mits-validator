@@ -34,8 +34,8 @@ class SchematronValidator:
         if not self._rules_available:
             findings.append(
                 Finding(
-                    level=FindingLevel.WARNING,
-                    code="SCHEMATRON:RULES_MISSING",
+                    level=FindingLevel.INFO,
+                    code="SCHEMATRON:NO_RULES_LOADED",
                     message="Schematron rules not available for validation",
                     rule_ref="internal://Schematron",
                 )
