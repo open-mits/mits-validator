@@ -123,6 +123,14 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         remediation="Fix XML structure to match schema requirements",
         level="XSD",
     ),
+    "XSD:PARSE_ERROR": ErrorDefinition(
+        code="XSD:PARSE_ERROR",
+        severity=FindingLevel.ERROR,
+        title="XML parsing failed",
+        description="XML content could not be parsed",
+        remediation="Fix XML syntax errors",
+        level="XSD",
+    ),
     # Schematron errors
     "SCHEMATRON:RULES_MISSING": ErrorDefinition(
         code="SCHEMATRON:RULES_MISSING",

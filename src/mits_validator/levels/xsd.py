@@ -1,44 +1,55 @@
+"""XSD validation level implementation."""
+
 from __future__ import annotations
 
 import time
 from pathlib import Path
+from typing import Any
 
-import lxml.etree as ET
 from lxml import etree
 
 from mits_validator.models import Finding, FindingLevel, ValidationResult
 
 
 class XSDValidator:
-    """Validates XML against XSD schemas."""
+    """XSD validation level that validates XML against XSD schemas."""
 
-    def __init__(self, schema_path: Path | None = None):
+    def __init__(self, schema_path: Path | None = None) -> None:
         self.schema_path = schema_path
-        self._schema: etree.XMLSchema | None = None
-        self._load_schema()
+        self._schema = None
+        self._schema_loaded = False
 
-    def _load_schema(self) -> None:
+    def _load_schema(self) -> bool:
         """Load XSD schema if available."""
+        if self._schema_loaded:
+            return self._schema is not None
+
         if not self.schema_path or not self.schema_path.exists():
-            return
+            self._schema_loaded = True
+            return False
 
         try:
-            schema_doc = etree.parse(str(self.schema_path))
+            with open(self.schema_path, 'rb') as f:
+                schema_doc = etree.parse(f)
             self._schema = etree.XMLSchema(schema_doc)
-        except Exception:
-            # Schema loading failed - will be reported as missing
-            self._schema = None
+            self._schema_loaded = True
+            return True
+        except (etree.XMLSyntaxError, etree.XMLSchemaParseError, FileNotFoundError):
+            self._schema_loaded = True
+            return False
 
     def validate(self, content: bytes) -> ValidationResult:
-        """Validate XML against XSD schema."""
+        """Validate XML content against XSD schema."""
         start_time = time.time()
         findings: list[Finding] = []
 
-        # Check if schema is available
-        if not self._schema:
+        # Load schema if not already loaded
+        schema_available = self._load_schema()
+
+        if not schema_available:
             findings.append(
                 Finding(
-                    level=FindingLevel.WARNING,
+                    level=FindingLevel.INFO,
                     code="XSD:SCHEMA_MISSING",
                     message="XSD schema not available for validation",
                     rule_ref="internal://XSD",
@@ -46,36 +57,55 @@ class XSDValidator:
             )
         else:
             try:
-                # Parse XML
-                xml_doc = ET.fromstring(content)
-
+                # Parse XML content
+                xml_doc = etree.fromstring(content)
+                
                 # Validate against schema
-                self._schema.assertValid(xml_doc)
-
+                if not self._schema.validate(xml_doc):
+                    # Schema validation failed
+                    findings.append(
+                        Finding(
+                            level=FindingLevel.ERROR,
+                            code="XSD:VALIDATION_ERROR",
+                            message="XML does not conform to XSD schema",
+                            rule_ref="internal://XSD",
+                        )
+                    )
+                
+            except etree.XMLSyntaxError as e:
+                findings.append(
+                    Finding(
+                        level=FindingLevel.ERROR,
+                        code="XSD:PARSE_ERROR",
+                        message=f"XML parsing failed: {e.msg}",
+                        rule_ref="internal://XSD",
+                    )
+                )
             except etree.DocumentInvalid as e:
-                # XSD validation failed
+                # Schema validation failed
                 findings.append(
                     Finding(
                         level=FindingLevel.ERROR,
                         code="XSD:VALIDATION_ERROR",
-                        message=f"XSD validation failed: {str(e)}",
+                        message=f"XSD validation failed: {e.msg}",
                         rule_ref="internal://XSD",
                     )
                 )
             except Exception as e:
-                # Unexpected error during XSD validation
                 findings.append(
                     Finding(
                         level=FindingLevel.ERROR,
                         code="ENGINE:LEVEL_CRASH",
-                        message=f"XSD validation crashed: {str(e)}",
+                        message=f"XSD validation level crashed: {e}",
                         rule_ref="internal://XSD",
                     )
                 )
 
         duration_ms = int((time.time() - start_time) * 1000)
         return ValidationResult(
-            level="XSD", findings=findings, duration_ms=duration_ms
+            level="XSD",
+            findings=findings,
+            duration_ms=duration_ms,
         )
 
     def get_name(self) -> str:

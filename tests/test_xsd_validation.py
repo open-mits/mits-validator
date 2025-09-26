@@ -81,7 +81,7 @@ class TestXSDValidation:
         assert result.level == ValidationLevel.XSD
         assert len(result.findings) == 1
         assert result.findings[0].code == "XSD:SCHEMA_MISSING"
-        assert result.findings[0].level == FindingLevel.WARNING
+        assert result.findings[0].level == FindingLevel.INFO
 
     def test_xsd_validation_with_invalid_schema_path(self):
         """Test XSD validation with non-existent schema path."""
@@ -93,7 +93,7 @@ class TestXSDValidation:
         assert result.level == ValidationLevel.XSD
         assert len(result.findings) == 1
         assert result.findings[0].code == "XSD:SCHEMA_MISSING"
-        assert result.findings[0].level == FindingLevel.WARNING
+        assert result.findings[0].level == FindingLevel.INFO
 
     def test_xsd_validation_crash_handling(self):
         """Test XSD validation handles crashes gracefully."""
@@ -121,7 +121,7 @@ class TestXSDValidation:
             assert result.level == ValidationLevel.XSD
             assert len(result.findings) == 1
             assert result.findings[0].code == "XSD:SCHEMA_MISSING"
-            assert result.findings[0].level == FindingLevel.WARNING
+            assert result.findings[0].level == FindingLevel.INFO
             
         finally:
             schema_path.unlink()
