@@ -26,7 +26,15 @@ def test_validate_both_file_and_url() -> None:
 
     response = client.post("/v1/validate", files=files, data=data)
     assert response.status_code == 400
-    assert "Cannot provide both file and URL" in response.json()["detail"]
+
+    result = response.json()
+    assert result["summary"]["valid"] is False
+    assert result["summary"]["errors"] == 1
+    assert len(result["findings"]) == 1
+
+    finding = result["findings"][0]
+    assert finding["level"] == "error"
+    assert finding["code"] == "INTAKE:BOTH_INPUTS"
 
 
 def test_validate_neither_file_nor_url() -> None:
@@ -35,7 +43,15 @@ def test_validate_neither_file_nor_url() -> None:
 
     response = client.post("/v1/validate", data=data)
     assert response.status_code == 400
-    assert "Must provide either file or URL" in response.json()["detail"]
+
+    result = response.json()
+    assert result["summary"]["valid"] is False
+    assert result["summary"]["errors"] == 1
+    assert len(result["findings"]) == 1
+
+    finding = result["findings"][0]
+    assert finding["level"] == "error"
+    assert finding["code"] == "INTAKE:NO_INPUTS"
 
 
 def test_validate_valid_xml_file() -> None:
@@ -73,13 +89,16 @@ def test_validate_malformed_xml_file() -> None:
     result = response.json()
     assert result["summary"]["valid"] is False
     assert result["summary"]["errors"] == 1
-    assert len(result["findings"]) == 1
+    # Should have multiple findings (WellFormed error + XSD/Schematron warnings)
+    assert len(result["findings"]) >= 1
 
-    finding = result["findings"][0]
-    assert finding["level"] == "error"
-    assert finding["code"] == "WELLFORMED:PARSE_ERROR"
-    assert "XML parsing failed" in finding["message"]
-    assert finding["rule_ref"] == "internal://WellFormed"
+    # Find the WellFormed error
+    wellformed_finding = next(
+        f for f in result["findings"] if f["code"] == "WELLFORMED:PARSE_ERROR"
+    )
+    assert wellformed_finding["level"] == "error"
+    assert "XML parsing failed" in wellformed_finding["message"]
+    assert wellformed_finding["rule_ref"] == "internal://WellFormed"
 
 
 def test_validate_url_intake() -> None:
@@ -103,7 +122,15 @@ def test_validate_invalid_url_format() -> None:
 
     response = client.post("/v1/validate", data=data)
     assert response.status_code == 422
-    assert "Invalid URL format" in response.json()["detail"]
+
+    result = response.json()
+    assert result["summary"]["valid"] is False
+    assert result["summary"]["errors"] == 1
+    assert len(result["findings"]) == 1
+
+    finding = result["findings"][0]
+    assert finding["level"] == "error"
+    assert finding["code"] == "INTAKE:INVALID_URL"
 
 
 def test_validate_file_size_limit() -> None:
@@ -115,18 +142,34 @@ def test_validate_file_size_limit() -> None:
 
     response = client.post("/v1/validate", files=files, data=data)
     assert response.status_code == 413
-    assert "File too large" in response.json()["detail"]
+
+    result = response.json()
+    assert result["summary"]["valid"] is False
+    assert result["summary"]["errors"] == 1
+    assert len(result["findings"]) == 1
+
+    finding = result["findings"][0]
+    assert finding["level"] == "error"
+    assert finding["code"] == "INTAKE:TOO_LARGE"
 
 
 def test_validate_unacceptable_content_type() -> None:
-    """Test unacceptable content type returns 422."""
+    """Test unacceptable content type returns 415."""
     test_content = b"<xml>test</xml>"
     files = {"file": ("test.xml", test_content, "image/jpeg")}
     data = {"max_size_mb": 10}
 
     response = client.post("/v1/validate", files=files, data=data)
-    assert response.status_code == 422
-    assert "Unacceptable content type" in response.json()["detail"]
+    assert response.status_code == 415
+
+    result = response.json()
+    assert result["summary"]["valid"] is False
+    assert result["summary"]["errors"] == 1
+    assert len(result["findings"]) == 1
+
+    finding = result["findings"][0]
+    assert finding["level"] == "error"
+    assert finding["code"] == "INTAKE:UNACCEPTABLE_CONTENT_TYPE"
 
 
 def test_validate_content_type_warning() -> None:
@@ -140,11 +183,15 @@ def test_validate_content_type_warning() -> None:
 
     result = response.json()
     assert result["summary"]["valid"] is True
-    assert result["summary"]["warnings"] == 1
+    # Should have multiple warnings (content type + XSD/Schematron missing)
+    assert result["summary"]["warnings"] >= 1
 
-    warning = next(f for f in result["findings"] if f["level"] == "warning")
-    assert warning["code"] == "WELLFORMED:SUSPICIOUS_CONTENT_TYPE"
-    assert "may not be XML" in warning["message"]
+    # Find the content type warning
+    content_type_warning = next(
+        f for f in result["findings"] if f["code"] == "WELLFORMED:SUSPICIOUS_CONTENT_TYPE"
+    )
+    assert content_type_warning["level"] == "warning"
+    assert "may not be XML" in content_type_warning["message"]
 
 
 def test_response_headers() -> None:

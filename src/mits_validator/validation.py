@@ -2,60 +2,17 @@ from __future__ import annotations
 
 import time
 import uuid
-from dataclasses import dataclass
 from datetime import UTC
-from enum import Enum
+from pathlib import Path
 from typing import Any, Protocol
 from xml.etree.ElementTree import ParseError
 
 import lxml.etree as ET
 from pydantic import BaseModel, Field
 
-
-class FindingLevel(str, Enum):
-    """Severity levels for validation findings."""
-
-    ERROR = "error"
-    WARNING = "warning"
-    INFO = "info"
-
-
-class ValidationLevel(str, Enum):
-    """Available validation levels."""
-
-    WELLFORMED = "WellFormed"
-    XSD = "XSD"
-    SCHEMATRON = "Schematron"
-    SEMANTIC = "Semantic"
-
-
-@dataclass
-class Location:
-    """Location information for a finding."""
-
-    line: int | None = None
-    column: int | None = None
-    xpath: str | None = None
-
-
-@dataclass
-class Finding:
-    """A single validation finding."""
-
-    level: FindingLevel
-    code: str
-    message: str
-    location: Location | None = None
-    rule_ref: str = "internal://WellFormed"
-
-
-@dataclass
-class ValidationResult:
-    """Result of a validation level execution."""
-
-    level: ValidationLevel
-    findings: list[Finding]
-    duration_ms: int
+from mits_validator.levels import SchematronValidator, XSDValidator
+from mits_validator.models import Finding, FindingLevel, Location, ValidationLevel, ValidationResult
+from mits_validator.profiles import get_profile
 
 
 class ValidationLevelProtocol(Protocol):
@@ -124,29 +81,90 @@ class WellFormedValidator:
 class ValidationEngine:
     """Main validation engine with level registry."""
 
-    def __init__(self) -> None:
+    def __init__(self, profile: str | None = None, rules_dir: Path | None = None) -> None:
         self._levels: dict[ValidationLevel, ValidationLevelProtocol] = {}
-        self._register_default_levels()
+        self._profile = get_profile(profile)
+        self._rules_dir = rules_dir or Path("rules")
+        self._register_levels()
 
-    def _register_default_levels(self) -> None:
-        """Register default validation levels."""
+    def _register_levels(self) -> None:
+        """Register validation levels based on profile."""
+        # Always register WellFormed
         self._levels[ValidationLevel.WELLFORMED] = WellFormedValidator()
+
+        # Register XSD if in profile
+        if ValidationLevel.XSD in self._profile.levels:
+            xsd_schema_path = self._rules_dir / "xsd" / "schema.xsd" if self._rules_dir else None
+            self._levels[ValidationLevel.XSD] = XSDValidator(xsd_schema_path)
+
+        # Register Schematron if in profile
+        if ValidationLevel.SCHEMATRON in self._profile.levels:
+            schematron_rules_path = (
+                self._rules_dir / "schematron" / "rules.sch" if self._rules_dir else None
+            )
+            self._levels[ValidationLevel.SCHEMATRON] = SchematronValidator(schematron_rules_path)
 
     def validate(
         self, content: bytes, content_type: str, levels: list[ValidationLevel] | None = None
     ) -> list[ValidationResult]:
-        """Validate content using specified levels."""
+        """Validate content using specified levels with defensive error handling."""
         if levels is None:
-            levels = [ValidationLevel.WELLFORMED]
+            levels = self._profile.levels
 
         results = []
         for level in levels:
             if level in self._levels:
-                validator = self._levels[level]
-                result = validator.validate(content, content_type)
-                results.append(result)
+                try:
+                    validator = self._levels[level]
+                    result = validator.validate(content, content_type)
+                    results.append(result)
+                except Exception as e:
+                    # Defensive: capture level crashes as findings
+                    crash_result = ValidationResult(
+                        level=level,
+                        findings=[
+                            Finding(
+                                level=FindingLevel.ERROR,
+                                code="ENGINE:LEVEL_CRASH",
+                                message=f"Validation level {level.value} crashed: {str(e)}",
+                                rule_ref=f"internal://{level.value}",
+                            )
+                        ],
+                        duration_ms=0,
+                    )
+                    results.append(crash_result)
+            else:
+                # Level not available - report as missing
+                missing_result = ValidationResult(
+                    level=level,
+                    findings=[
+                        Finding(
+                            level=FindingLevel.WARNING,
+                            code="ENGINE:RULES_MISSING",
+                            message=f"Validation level {level.value} not available",
+                            rule_ref=f"internal://{level.value}",
+                        )
+                    ],
+                    duration_ms=0,
+                )
+                results.append(missing_result)
 
         return results
+
+    def get_available_levels(self) -> list[str]:
+        """Get list of available validation levels."""
+        return [level.value for level in self._levels.keys()]
+
+    def get_profile_info(self) -> dict[str, Any]:
+        """Get current profile information."""
+        return {
+            "name": self._profile.name,
+            "description": self._profile.description,
+            "levels": [level.value for level in self._profile.levels],
+            "max_size_mb": self._profile.max_size_mb,
+            "timeout_seconds": self._profile.timeout_seconds,
+            "allowed_content_types": self._profile.allowed_content_types,
+        }
 
 
 class ValidationRequest(BaseModel):
@@ -169,6 +187,7 @@ class ValidationResponse(BaseModel):
             "spec_version": "unversioned",
             "profile": "default",
             "levels_executed": ["WellFormed"],
+            "levels_available": ["WellFormed"],
         }
     )
     input: ValidationRequest

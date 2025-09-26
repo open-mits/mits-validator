@@ -11,8 +11,11 @@ A professional, open-source validator for MITS (Property Marketing / ILS) XML fe
 
 ### Current (MVP)
 - ✅ **FastAPI Web Service** - RESTful API with health checks and validation endpoints
+- ✅ **Defensive Input Validation** - Strict content checks, size limits, and error handling
 - ✅ **Structured Validation Results** - Machine-readable result envelope with findings
 - ✅ **Modular Validation Architecture** - Extensible validation levels (WellFormed, XSD, Schematron, Semantic)
+- ✅ **Validation Profiles** - Configurable profiles for different use cases (PMS, ILS, Marketplace)
+- ✅ **Error Taxonomy** - Centralized error codes with consistent messaging
 - ✅ **File & URL Validation** - Support for both file uploads and URL-based validation
 - ✅ **Size Limits & Security** - Configurable file size limits and safe request handling
 - ✅ **XML Well-Formedness** - Basic XML parsing and structure validation
@@ -138,6 +141,35 @@ The validation API returns a structured, machine-readable result envelope:
 - **`summary`**: High-level validation results
 - **`findings`**: Detailed validation findings with location info
 - **`metadata`**: Request tracking and engine versions
+
+## Validator Levels & Rules
+
+The validator uses a modular architecture with multiple validation levels:
+
+### Validation Levels
+1. **WellFormed** - XML syntax and structure validation
+2. **XSD** - Schema conformance validation (when schemas available)
+3. **Schematron** - Business rules validation (when rules available)
+4. **Semantic** - Cross-field consistency checks (future)
+
+### Validation Profiles
+- **default** - All levels enabled, 10MB limit
+- **pms** - Property Management System profile, 5MB limit
+- **ils** - Internet Listing Service profile, 20MB limit  
+- **marketplace** - Marketplace profile, 50MB limit
+
+### Error Codes
+The validator uses a structured error taxonomy:
+
+| Category | Description | Example Codes |
+|----------|-------------|---------------|
+| `INTAKE` | Input validation errors | `INTAKE:BOTH_INPUTS`, `INTAKE:TOO_LARGE` |
+| `WELLFORMED` | XML parsing errors | `WELLFORMED:PARSE_ERROR` |
+| `XSD` | Schema validation errors | `XSD:VALIDATION_ERROR` |
+| `SCHEMATRON` | Business rule errors | `SCHEMATRON:RULE_FAILURE` |
+| `ENGINE` | System errors | `ENGINE:LEVEL_CRASH` |
+
+See [Error Codes Documentation](docs/error-codes.md) for the complete catalog.
 
 ## 🔧 Development
 

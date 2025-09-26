@@ -2,15 +2,20 @@ from __future__ import annotations
 
 import os
 import time
+import uuid
+from datetime import UTC, datetime
 from typing import Any
 
+import fastapi
+import lxml
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 
 from mits_validator import __version__
+from mits_validator.findings import create_finding
+from mits_validator.profiles import get_profile
 from mits_validator.validation import (
     ValidationEngine,
-    ValidationLevel,
     ValidationRequest,
     ValidationResponse,
 )
@@ -46,6 +51,51 @@ app = FastAPI(
 validation_engine = ValidationEngine()
 
 
+def _create_error_response(finding: dict[str, Any], status_code: int) -> JSONResponse:
+    """Create a standardized error response with result envelope."""
+    response_data: dict[str, Any] = {
+        "api_version": "1.0",
+        "validator": {
+            "name": "mits-validator",
+            "spec_version": "unversioned",
+            "profile": "default",
+            "levels_executed": [],
+            "levels_available": validation_engine.get_available_levels(),
+        },
+        "input": {
+            "source": "unknown",
+            "url": None,
+            "filename": None,
+            "size_bytes": 0,
+            "content_type": "unknown",
+        },
+        "summary": {
+            "valid": False,
+            "errors": 1 if finding["level"] == "error" else 0,
+            "warnings": 1 if finding["level"] == "warning" else 0,
+            "duration_ms": 0,
+        },
+        "findings": [finding],
+        "derived": {},
+        "metadata": {
+            "request_id": str(uuid.uuid4()),
+            "timestamp": datetime.now(UTC).isoformat(),
+            "engine": {"fastapi": fastapi.__version__, "lxml": lxml.__version__},
+        },
+    }
+
+    request_id = str(response_data["metadata"]["request_id"])
+    headers: dict[str, str] = {
+        "X-Request-Id": request_id,
+        "Cache-Control": "no-store",
+    }
+    return JSONResponse(
+        content=response_data,
+        status_code=status_code,
+        headers=headers,
+    )
+
+
 @app.get(
     "/health",
     tags=["health"],
@@ -71,6 +121,7 @@ async def validate(
     file: UploadFile | None = DEFAULT_FILE,
     url: str | None = DEFAULT_FORM,
     max_size_mb: int = DEFAULT_SIZE,
+    profile: str | None = None,
 ) -> JSONResponse:
     """
     Validate MITS XML feed.
@@ -80,41 +131,56 @@ async def validate(
     """
     start_time = time.time()
 
-    # Validate input parameters
+    # Get validation profile (for future use)
+    _ = get_profile(profile)
+
+    # Validate input parameters with defensive error handling
     if file and url:
-        raise HTTPException(status_code=400, detail="Cannot provide both file and URL")
+        error_finding = create_finding("INTAKE:BOTH_INPUTS")
+        return _create_error_response(error_finding, 400)
 
     if not file and not url:
-        raise HTTPException(status_code=400, detail="Must provide either file or URL")
+        error_finding = create_finding("INTAKE:NO_INPUTS")
+        return _create_error_response(error_finding, 400)
 
     # Process file upload
     if file:
-        return await _validate_file_upload(file, max_size_mb, start_time)
+        return await _validate_file_upload(file, max_size_mb, start_time, profile)
 
     # Process URL
     if url:
-        return await _validate_url(url, max_size_mb, start_time)
+        return await _validate_url(url, max_size_mb, start_time, profile)
 
     # This should never be reached
     raise HTTPException(status_code=500, detail="Internal error")
 
 
 async def _validate_file_upload(
-    file: UploadFile, max_size_mb: int, start_time: float
+    file: UploadFile, max_size_mb: int, start_time: float, profile: str | None = None
 ) -> JSONResponse:
     """Validate file upload."""
-    # Check content type
-    content_type = file.content_type or "application/octet-stream"
-    if not _is_acceptable_content_type(content_type):
-        raise HTTPException(status_code=422, detail=f"Unacceptable content type: {content_type}")
+    # Get validation profile
+    validation_profile = get_profile(profile)
 
-    # Read and check file size
+    # Check content type with profile-aware validation
+    content_type = file.content_type or "application/octet-stream"
+    if not _is_acceptable_content_type(content_type, validation_profile.allowed_content_types):
+        error_finding = create_finding(
+            "INTAKE:UNACCEPTABLE_CONTENT_TYPE",
+            f"Content type '{content_type}' not allowed for profile '{validation_profile.name}'",
+        )
+        return _create_error_response(error_finding, 415)
+
+    # Read and check file size with profile limits
     content = await file.read()
     size_bytes = len(content)
-    max_size_bytes = max_size_mb * 1024 * 1024
+    max_size_bytes = min(max_size_mb, validation_profile.max_size_mb) * 1024 * 1024
 
     if size_bytes > max_size_bytes:
-        raise HTTPException(status_code=413, detail=f"File too large. Max size: {max_size_mb}MB")
+        error_finding = create_finding(
+            "INTAKE:TOO_LARGE", f"File size {size_bytes} bytes exceeds limit {max_size_bytes} bytes"
+        )
+        return _create_error_response(error_finding, 413)
 
     # Create validation request
     validation_request = ValidationRequest(
@@ -125,12 +191,26 @@ async def _validate_file_upload(
         content_type=content_type,
     )
 
-    # Perform validation
-    results = validation_engine.validate(content, content_type, [ValidationLevel.WELLFORMED])
+    # Initialize validation engine with profile
+    engine = ValidationEngine(profile=profile)
+
+    # Perform validation with all levels in profile
+    results = engine.validate(content, content_type)
 
     # Build response
     response = ValidationResponse(
-        input=validation_request, findings=_build_findings_from_results(results)
+        input=validation_request,
+        findings=_build_findings_from_results(results),
+    )
+
+    # Update validator info with profile data
+    profile_info = engine.get_profile_info()
+    response.validator.update(
+        {
+            "profile": profile_info["name"],
+            "levels_executed": [result.level.value for result in results],
+            "levels_available": engine.get_available_levels(),
+        }
     )
 
     # Add request ID header
@@ -140,13 +220,19 @@ async def _validate_file_upload(
     )
 
 
-async def _validate_url(url: str, max_size_mb: int, start_time: float) -> JSONResponse:
+async def _validate_url(
+    url: str, max_size_mb: int, start_time: float, profile: str | None = None
+) -> JSONResponse:
     """Validate URL (intake only, no actual fetching yet)."""
-    # Validate URL format
+    # Validate URL format with defensive error handling
     if not url.startswith(("http://", "https://")):
-        raise HTTPException(
-            status_code=422, detail="Invalid URL format. Must start with http:// or https://"
+        error_finding = create_finding(
+            "INTAKE:INVALID_URL", f"URL '{url}' must start with http:// or https://"
         )
+        return _create_error_response(error_finding, 422)
+
+    # Get validation profile (for future use)
+    _ = get_profile(profile)
 
     # For now, just acknowledge URL intake without fetching
     # TODO: Implement actual URL fetching in future milestone
@@ -157,6 +243,9 @@ async def _validate_url(url: str, max_size_mb: int, start_time: float) -> JSONRe
         size_bytes=0,  # Unknown until fetched
         content_type="application/xml",  # Assume XML for URLs
     )
+
+    # Initialize validation engine with profile
+    engine = ValidationEngine(profile=profile)
 
     # Create a minimal response for URL intake
     response = ValidationResponse(
@@ -172,21 +261,32 @@ async def _validate_url(url: str, max_size_mb: int, start_time: float) -> JSONRe
         ],
     )
 
+    # Update validator info with profile data
+    profile_info = engine.get_profile_info()
+    response.validator.update(
+        {
+            "profile": profile_info["name"],
+            "levels_executed": [],
+            "levels_available": engine.get_available_levels(),
+        }
+    )
+
     return JSONResponse(
         content=response.model_dump(),
         headers={"X-Request-Id": response.metadata["request_id"], "Cache-Control": "no-store"},
     )
 
 
-def _is_acceptable_content_type(content_type: str) -> bool:
+def _is_acceptable_content_type(content_type: str, allowed_types: list[str] | None = None) -> bool:
     """Check if content type is acceptable for XML validation."""
-    acceptable_types = [
-        "application/xml",
-        "text/xml",
-        "application/octet-stream",  # Allow with warning
-        "text/plain",  # Allow with warning
-    ]
-    return any(ct in content_type.lower() for ct in acceptable_types)
+    if allowed_types is None:
+        allowed_types = [
+            "application/xml",
+            "text/xml",
+            "application/octet-stream",  # Allow with warning
+            "text/plain",  # Allow with warning
+        ]
+    return any(ct in content_type.lower() for ct in allowed_types)
 
 
 def _build_findings_from_results(results: list[Any]) -> list[dict[str, Any]]:
