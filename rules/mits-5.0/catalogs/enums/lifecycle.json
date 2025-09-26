@@ -1,0 +1,22 @@
+[
+  {
+    "code": "ACTIVE",
+    "name": "Active",
+    "description": "Currently active and applicable"
+  },
+  {
+    "code": "INACTIVE",
+    "name": "Inactive",
+    "description": "Not currently active"
+  },
+  {
+    "code": "DEPRECATED",
+    "name": "Deprecated",
+    "description": "No longer recommended for use"
+  },
+  {
+    "code": "PENDING",
+    "name": "Pending",
+    "description": "Awaiting activation"
+  }
+]

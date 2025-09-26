@@ -1,0 +1,17 @@
+[
+  {
+    "code": "REQUIRED",
+    "name": "Required",
+    "description": "Charge is mandatory for this item"
+  },
+  {
+    "code": "OPTIONAL",
+    "name": "Optional",
+    "description": "Charge is optional for this item"
+  },
+  {
+    "code": "CONDITIONAL",
+    "name": "Conditional",
+    "description": "Charge applies under specific conditions"
+  }
+]

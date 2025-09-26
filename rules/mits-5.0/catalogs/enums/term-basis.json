@@ -1,0 +1,22 @@
+[
+  {
+    "code": "LEASE_TERM",
+    "name": "Lease Term",
+    "description": "Based on the duration of the lease"
+  },
+  {
+    "code": "OCCUPANCY",
+    "name": "Occupancy",
+    "description": "Based on occupancy period"
+  },
+  {
+    "code": "CALENDAR_YEAR",
+    "name": "Calendar Year",
+    "description": "Based on calendar year"
+  },
+  {
+    "code": "FISCAL_YEAR",
+    "name": "Fiscal Year",
+    "description": "Based on fiscal year"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "code": "FIXED",
+    "name": "Fixed Amount",
+    "description": "A fixed dollar amount"
+  },
+  {
+    "code": "PERCENTAGE",
+    "name": "Percentage",
+    "description": "A percentage of another amount"
+  },
+  {
+    "code": "PER_UNIT",
+    "name": "Per Unit",
+    "description": "Amount per unit of measurement"
+  },
+  {
+    "code": "TIERED",
+    "name": "Tiered",
+    "description": "Amount varies by tier or level"
+  }
+]

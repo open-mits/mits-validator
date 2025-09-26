@@ -1,0 +1,22 @@
+[
+  {
+    "code": "NO_MAXIMUM",
+    "name": "No Maximum",
+    "description": "No maximum refund amount"
+  },
+  {
+    "code": "FIXED_MAXIMUM",
+    "name": "Fixed Maximum",
+    "description": "Fixed maximum refund amount"
+  },
+  {
+    "code": "PERCENTAGE_MAXIMUM",
+    "name": "Percentage Maximum",
+    "description": "Maximum refund as percentage of original amount"
+  },
+  {
+    "code": "DEPOSIT_MAXIMUM",
+    "name": "Deposit Maximum",
+    "description": "Maximum refund limited to deposit amount"
+  }
+]

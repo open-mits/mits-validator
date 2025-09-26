@@ -1,0 +1,32 @@
+[
+  {
+    "code": "PET",
+    "name": "Pet Fee",
+    "description": "Monthly or one-time fees for pet ownership",
+    "notes": "May include deposit, monthly fee, or both"
+  },
+  {
+    "code": "PARKING",
+    "name": "Parking Fee",
+    "description": "Fees for parking spaces or permits",
+    "aliases": ["PARKING_PERMIT", "GARAGE_FEE"]
+  },
+  {
+    "code": "LEASE",
+    "name": "Lease Fee",
+    "description": "Standard lease-related fees",
+    "notes": "Base rental amount and related charges"
+  },
+  {
+    "code": "UTILITY",
+    "name": "Utility Fee",
+    "description": "Fees for utilities and services",
+    "aliases": ["UTILITIES", "SERVICES"]
+  },
+  {
+    "code": "STORAGE",
+    "name": "Storage Fee",
+    "description": "Fees for additional storage spaces",
+    "notes": "May include closets, basements, or external storage"
+  }
+]

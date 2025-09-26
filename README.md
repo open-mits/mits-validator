@@ -171,6 +171,47 @@ The validator uses a structured error taxonomy:
 
 See [Error Codes Documentation](docs/error-codes.md) for the complete catalog.
 
+## Catalogs & Versioning
+
+The validator supports versioned MITS catalogs that define charge classes, enumerations, and item specializations. These catalogs provide machine-validated reference data for validation.
+
+### Catalog Structure
+```
+rules/
+  mits-5.0/
+    catalogs/
+      charge-classes.json          # Charge class definitions
+      enums/                       # Enumeration catalogs
+        charge-requirement.json
+        refundability.json
+        payment-frequency.json
+        # ... more enums
+      item-specializations/        # Item specialization schemas
+        parking.json
+        storage.json
+        pet.json
+    schemas/                       # JSON Schemas for validation
+      charge-classes.schema.json
+      enum.schema.json
+      parking.schema.json
+      # ... more schemas
+```
+
+### Catalog Features
+- **Versioned Resources** - Support for multiple MITS versions (5.0, 6.0+)
+- **JSON Schema Validation** - All catalogs validated against schemas
+- **Unique Code Enforcement** - Duplicate codes detected and reported
+- **Machine-Readable** - Structured data for programmatic access
+- **Extensible** - Easy to add new catalogs and versions
+
+### Adding/Editing Catalogs
+1. **Follow Naming Conventions** - Use UPPER_SNAKE_CASE for codes
+2. **Ensure Uniqueness** - All codes must be unique within each catalog
+3. **Validate Against Schema** - Run `scripts/validate_catalogs.py`
+4. **Test Changes** - Ensure CI passes with your changes
+
+See [Contributing Rules](docs/contributing-rules.md) for detailed guidelines.
+
 ## 🔧 Development
 
 ### Prerequisites

@@ -1,0 +1,17 @@
+[
+  {
+    "code": "REFUNDABLE",
+    "name": "Refundable",
+    "description": "Charge is fully refundable"
+  },
+  {
+    "code": "NON_REFUNDABLE",
+    "name": "Non-Refundable",
+    "description": "Charge is not refundable"
+  },
+  {
+    "code": "PARTIALLY_REFUNDABLE",
+    "name": "Partially Refundable",
+    "description": "Charge is refundable under certain conditions"
+  }
+]

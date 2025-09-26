@@ -1,0 +1,22 @@
+[
+  {
+    "code": "GROSS_RENT",
+    "name": "Gross Rent",
+    "description": "Based on gross rental amount"
+  },
+  {
+    "code": "NET_RENT",
+    "name": "Net Rent",
+    "description": "Based on net rental amount"
+  },
+  {
+    "code": "DEPOSIT_AMOUNT",
+    "name": "Deposit Amount",
+    "description": "Based on security deposit amount"
+  },
+  {
+    "code": "FIXED_AMOUNT",
+    "name": "Fixed Amount",
+    "description": "Based on a fixed dollar amount"
+  }
+]

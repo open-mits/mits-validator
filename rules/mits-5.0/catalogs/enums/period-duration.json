@@ -1,0 +1,22 @@
+[
+  {
+    "code": "DAYS",
+    "name": "Days",
+    "description": "Duration in days"
+  },
+  {
+    "code": "WEEKS",
+    "name": "Weeks",
+    "description": "Duration in weeks"
+  },
+  {
+    "code": "MONTHS",
+    "name": "Months",
+    "description": "Duration in months"
+  },
+  {
+    "code": "YEARS",
+    "name": "Years",
+    "description": "Duration in years"
+  }
+]

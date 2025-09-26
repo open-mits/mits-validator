@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mits.org/schemas/mits-5.0/pet.schema.json",
+  "title": "MITS 5.0 Pet Specialization Schema",
+  "description": "Schema for MITS 5.0 pet item specialization",
+  "type": "object",
+  "properties": {
+    "pet_type": {
+      "type": "string",
+      "enum": ["DOG", "CAT", "BIRD", "FISH", "REPTILE", "SMALL_MAMMAL", "OTHER"],
+      "description": "Type of pet allowed"
+    },
+    "size_category": {
+      "type": "string",
+      "enum": ["SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE"],
+      "description": "Size category of the pet"
+    },
+    "weight_limit": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum weight allowed for the pet"
+    },
+    "breed_restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of restricted breeds (if any)"
+    },
+    "vaccination_required": {
+      "type": "boolean",
+      "description": "Whether vaccination records are required"
+    },
+    "spay_neuter_required": {
+      "type": "boolean",
+      "description": "Whether spay/neuter is required"
+    },
+    "deposit_required": {
+      "type": "boolean",
+      "description": "Whether a pet deposit is required"
+    },
+    "monthly_fee": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Monthly pet fee amount"
+    },
+    "amenities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["PET_WASH", "DOG_PARK", "PET_WASTE_STATION", "PET_FRIENDLY_COMMON_AREAS"]
+      },
+      "description": "Available pet amenities"
+    },
+    "restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["NO_BREEDING", "NO_BOARDING", "LEASH_REQUIRED", "QUIET_HOURS"]
+      },
+      "description": "Pet-related restrictions"
+    }
+  },
+  "required": ["pet_type", "size_category", "vaccination_required", "deposit_required"],
+  "additionalProperties": false
+}

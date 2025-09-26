@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mits.org/schemas/mits-5.0/parking.schema.json",
+  "title": "MITS 5.0 Parking Specialization Schema",
+  "description": "Schema for MITS 5.0 parking item specialization",
+  "type": "object",
+  "properties": {
+    "structure_type": {
+      "type": "string",
+      "enum": ["SURFACE", "GARAGE", "UNDERGROUND", "COVERED", "OPEN"],
+      "description": "Type of parking structure"
+    },
+    "size_type": {
+      "type": "string",
+      "enum": ["COMPACT", "STANDARD", "LARGE", "MOTORCYCLE", "OVERSIZED"],
+      "description": "Size classification of parking space"
+    },
+    "availability": {
+      "type": "string",
+      "enum": ["AVAILABLE", "RESERVED", "UNAVAILABLE"],
+      "description": "Current availability status"
+    },
+    "reservable": {
+      "type": "boolean",
+      "description": "Whether the parking space can be reserved"
+    },
+    "unit_of_measure": {
+      "type": "string",
+      "enum": ["SPACE", "SQUARE_FOOT", "SQUARE_METER"],
+      "description": "Unit of measurement for the parking space"
+    },
+    "dimensions": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "type": "number",
+          "minimum": 0
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0
+        },
+        "height": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "description": "Physical dimensions of the parking space"
+    },
+    "amenities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["ELECTRIC_CHARGING", "COVERED", "SECURE", "VALET", "SELF_PARK"]
+      },
+      "description": "Available amenities for the parking space"
+    }
+  },
+  "required": ["structure_type", "size_type", "availability", "reservable"],
+  "additionalProperties": false
+}

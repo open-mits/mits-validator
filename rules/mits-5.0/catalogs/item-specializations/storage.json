@@ -1,0 +1,13 @@
+{
+  "storage_type": "BASEMENT",
+  "size_type": "MEDIUM",
+  "availability": "AVAILABLE",
+  "reservable": false,
+  "unit_of_measure": "CUBIC_FOOT",
+  "capacity": {
+    "volume": 100.0,
+    "weight_limit": 500.0
+  },
+  "access_type": "PRIVATE",
+  "amenities": ["CLIMATE_CONTROLLED", "SECURE"]
+}

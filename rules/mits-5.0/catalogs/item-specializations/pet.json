@@ -1,0 +1,12 @@
+{
+  "pet_type": "DOG",
+  "size_category": "MEDIUM",
+  "weight_limit": 50.0,
+  "breed_restrictions": [],
+  "vaccination_required": true,
+  "spay_neuter_required": false,
+  "deposit_required": true,
+  "monthly_fee": 25.0,
+  "amenities": ["DOG_PARK", "PET_WASTE_STATION"],
+  "restrictions": ["LEASH_REQUIRED", "QUIET_HOURS"]
+}

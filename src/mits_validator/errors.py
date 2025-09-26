@@ -218,6 +218,55 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         ),
         level="schematron",
     ),
+    # Catalog errors
+    "CATALOG:VERSION_NOT_FOUND": ErrorDefinition(
+        code="CATALOG:VERSION_NOT_FOUND",
+        severity=FindingLevel.ERROR,
+        title="Catalog version not found",
+        description="The specified MITS catalog version directory was not found",
+        remediation="Check that the version directory exists in rules/",
+        level="catalog",
+    ),
+    "CATALOG:FILE_MISSING": ErrorDefinition(
+        code="CATALOG:FILE_MISSING",
+        severity=FindingLevel.WARNING,
+        title="Catalog file missing",
+        description="A required catalog file was not found",
+        remediation="Ensure all required catalog files are present",
+        level="catalog",
+    ),
+    "CATALOG:DIRECTORY_MISSING": ErrorDefinition(
+        code="CATALOG:DIRECTORY_MISSING",
+        severity=FindingLevel.WARNING,
+        title="Catalog directory missing",
+        description="A required catalog directory was not found",
+        remediation="Ensure all required catalog directories are present",
+        level="catalog",
+    ),
+    "CATALOG:INVALID_JSON": ErrorDefinition(
+        code="CATALOG:INVALID_JSON",
+        severity=FindingLevel.ERROR,
+        title="Invalid JSON in catalog",
+        description="Catalog file contains invalid JSON syntax",
+        remediation="Fix JSON syntax errors in the catalog file",
+        level="catalog",
+    ),
+    "CATALOG:SCHEMA_VALIDATION_ERROR": ErrorDefinition(
+        code="CATALOG:SCHEMA_VALIDATION_ERROR",
+        severity=FindingLevel.ERROR,
+        title="Catalog schema validation failed",
+        description="Catalog file does not conform to its JSON schema",
+        remediation="Fix catalog file to match the required schema",
+        level="catalog",
+    ),
+    "CATALOG:DUPLICATE_CODE": ErrorDefinition(
+        code="CATALOG:DUPLICATE_CODE",
+        severity=FindingLevel.ERROR,
+        title="Duplicate catalog code",
+        description="Duplicate code found within a catalog file",
+        remediation="Ensure all codes are unique within each catalog file",
+        level="catalog",
+    ),
 }
 
 

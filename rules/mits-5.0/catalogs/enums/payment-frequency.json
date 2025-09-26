@@ -1,0 +1,27 @@
+[
+  {
+    "code": "MONTHLY",
+    "name": "Monthly",
+    "description": "Charged every month"
+  },
+  {
+    "code": "ANNUALLY",
+    "name": "Annually",
+    "description": "Charged once per year"
+  },
+  {
+    "code": "ONE_TIME",
+    "name": "One Time",
+    "description": "Charged only once"
+  },
+  {
+    "code": "WEEKLY",
+    "name": "Weekly",
+    "description": "Charged every week"
+  },
+  {
+    "code": "DAILY",
+    "name": "Daily",
+    "description": "Charged every day"
+  }
+]

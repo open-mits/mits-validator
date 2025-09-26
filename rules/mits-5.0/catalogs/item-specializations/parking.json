@@ -1,0 +1,13 @@
+{
+  "structure_type": "GARAGE",
+  "size_type": "STANDARD",
+  "availability": "AVAILABLE",
+  "reservable": true,
+  "unit_of_measure": "SPACE",
+  "dimensions": {
+    "length": 18.0,
+    "width": 8.5,
+    "height": 7.0
+  },
+  "amenities": ["COVERED", "SECURE"]
+}
