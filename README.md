@@ -71,6 +71,123 @@ curl -X POST -F "file=@feed.xml" http://localhost:8000/v1/validate
 curl -X POST -d "url=https://example.com/feed.xml" http://localhost:8000/v1/validate
 ```
 
+## 🐳 Run with Docker
+
+### Quick Start
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/open-mits/mits-validator:latest
+
+# Run the container
+docker run -p 8000:8000 ghcr.io/open-mits/mits-validator:latest
+
+# Health check
+curl http://localhost:8000/health
+
+# Validate a file
+curl -X POST -F "file=@feed.xml" http://localhost:8000/v1/validate
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8000` | Port to bind the service |
+| `MAX_UPLOAD_BYTES` | `10485760` | Maximum file size (10MB) |
+| `REQUEST_TIMEOUT` | `30` | Request timeout in seconds |
+| `ALLOWED_CONTENT_TYPES` | `application/xml,text/xml,application/octet-stream` | Allowed content types |
+| `DEFAULT_PROFILE` | `default` | Default validation profile |
+| `LOG_LEVEL` | `INFO` | Logging level |
+| `CORS_ORIGINS` | `*` | CORS allowed origins |
+| `CORS_METHODS` | `GET,POST,OPTIONS` | CORS allowed methods |
+| `CORS_HEADERS` | `*` | CORS allowed headers |
+
+### Example Usage
+
+```bash
+# Run with custom configuration
+docker run -p 8000:8000 \
+  -e MAX_UPLOAD_BYTES=52428800 \
+  -e LOG_LEVEL=DEBUG \
+  ghcr.io/open-mits/mits-validator:latest
+
+# Run with volume mount for local files
+docker run -p 8000:8000 \
+  -v $(pwd)/feeds:/app/feeds:ro \
+  ghcr.io/open-mits/mits-validator:latest
+
+# Run in background
+docker run -d --name mits-validator \
+  -p 8000:8000 \
+  ghcr.io/open-mits/mits-validator:latest
+```
+
+### Development with Docker
+
+```bash
+# Build the image
+make build
+
+# Run locally
+make run
+
+# Run tests in container
+make test
+
+# Run smoke tests
+make smoke
+
+# Clean up
+make clean
+```
+
+## 📦 Container Images
+
+### Published Images
+
+Container images are published to GitHub Container Registry (GHCR):
+
+- **Latest**: `ghcr.io/open-mits/mits-validator:latest`
+- **Versioned**: `ghcr.io/open-mits/mits-validator:v1.0.0`
+- **Major.Minor**: `ghcr.io/open-mits/mits-validator:v1.0`
+
+### Pull and Run
+
+```bash
+# Pull latest image
+docker pull ghcr.io/open-mits/mits-validator:latest
+
+# Run with default settings
+docker run -p 8000:8000 ghcr.io/open-mits/mits-validator:latest
+
+# Run with custom port
+docker run -p 3000:8000 ghcr.io/open-mits/mits-validator:latest
+```
+
+### Versioning Policy
+
+- **`:latest`** - Follows the main branch (latest development)
+- **`v*`** - Semantic version tags (e.g., `v1.0.0`, `v1.1.0`)
+- **`v*.*`** - Major.minor version tags (e.g., `v1.0`, `v1.1`)
+
+### Public Demo & Limits
+
+For public demos and testing, consider the following limits:
+
+- **Rate Limiting**: Implement rate limiting for production use
+- **File Size**: Default 10MB limit (configurable)
+- **Timeout**: 30-second request timeout
+- **Privacy**: Never upload sensitive production data to public instances
+
+### Operational Notes
+
+- **Resource Requirements**: 512MB RAM, 1 CPU core minimum
+- **Security**: Runs as non-root user with read-only filesystem
+- **Health Checks**: Built-in health check endpoint
+- **Logging**: Structured JSON logging with configurable levels
+- **CORS**: Configurable CORS settings for web integration
+
 ### CLI Usage
 
 ```bash

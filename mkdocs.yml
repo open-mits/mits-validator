@@ -78,6 +78,7 @@ nav:
     - REST API: api/rest.md
     - CLI Reference: api/cli.md
   - Operations:
+    - Deployment Guide: deployment-guide.md
     - Operational Notes: operational-notes.md
     - Roadmap: roadmap.md
   - Contributing:
