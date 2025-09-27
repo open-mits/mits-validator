@@ -1,7 +1,5 @@
 """Health checks for MITS Validator dependencies."""
 
-import asyncio
-import os
 import time
 from pathlib import Path
 from typing import Any
@@ -24,33 +22,35 @@ class HealthChecker:
 
     def _register_default_checks(self) -> None:
         """Register default health checks."""
-        self.checks.update({
-            "filesystem": self._check_filesystem,
-            "rules_directory": self._check_rules_directory,
-            "cache": self._check_cache,
-            "memory": self._check_memory,
-            "disk_space": self._check_disk_space,
-        })
+        self.checks.update(
+            {
+                "filesystem": self._check_filesystem,
+                "rules_directory": self._check_rules_directory,
+                "cache": self._check_cache,
+                "memory": self._check_memory,
+                "disk_space": self._check_disk_space,
+            }
+        )
 
     async def check_health(self, checks: list[str] = None) -> dict[str, Any]:
         """Run health checks.
-        
+
         Args:
             checks: List of specific checks to run. If None, runs all checks.
-            
+
         Returns:
             Health check results
         """
         if checks is None:
             checks = list(self.checks.keys())
-        
+
         results = {
             "status": "healthy",
             "timestamp": time.time(),
             "checks": {},
             "overall_healthy": True,
         }
-        
+
         for check_name in checks:
             if check_name in self.checks:
                 try:
@@ -58,19 +58,19 @@ class HealthChecker:
                     if self._is_check_cached(check_name):
                         results["checks"][check_name] = self._get_cached_result(check_name)
                         continue
-                    
+
                     # Run check
                     check_result = await self.checks[check_name]()
                     results["checks"][check_name] = check_result
-                    
+
                     # Cache result
                     self._cache_result(check_name, check_result)
-                    
+
                     # Update overall health
                     if not check_result.get("healthy", False):
                         results["overall_healthy"] = False
                         results["status"] = "unhealthy"
-                
+
                 except Exception as e:
                     logger.error("Health check failed", check=check_name, error=str(e))
                     results["checks"][check_name] = {
@@ -88,7 +88,7 @@ class HealthChecker:
                 }
                 results["overall_healthy"] = False
                 results["status"] = "unhealthy"
-        
+
         return results
 
     def _is_check_cached(self, check_name: str) -> bool:
@@ -117,9 +117,10 @@ class HealthChecker:
         try:
             # Check if we can write to temp directory
             import tempfile
+
             with tempfile.NamedTemporaryFile(delete=True) as tmp:
                 tmp.write(b"test")
-            
+
             return {
                 "healthy": True,
                 "message": "Filesystem is accessible",
@@ -142,10 +143,14 @@ class HealthChecker:
                     "error": "Rules directory does not exist",
                     "timestamp": time.time(),
                 }
-            
+
             # Check if we can read the directory
-            files = list(rules_path.rglob("*.xml")) + list(rules_path.rglob("*.xsd")) + list(rules_path.rglob("*.sch"))
-            
+            files = (
+                list(rules_path.rglob("*.xml"))
+                + list(rules_path.rglob("*.xsd"))
+                + list(rules_path.rglob("*.sch"))
+            )
+
             return {
                 "healthy": True,
                 "message": f"Rules directory accessible with {len(files)} rule files",
@@ -163,10 +168,10 @@ class HealthChecker:
         """Check cache health."""
         try:
             from mits_validator.cache import get_cache_manager
-            
+
             cache_manager = await get_cache_manager()
             stats = cache_manager.get_cache_stats()
-            
+
             return {
                 "healthy": True,
                 "message": "Cache is accessible",
@@ -184,13 +189,13 @@ class HealthChecker:
         """Check memory health."""
         try:
             import psutil
-            
+
             memory = psutil.virtual_memory()
             memory_usage_percent = memory.percent
-            
+
             # Consider unhealthy if memory usage is over 90%
             healthy = memory_usage_percent < 90
-            
+
             return {
                 "healthy": healthy,
                 "message": f"Memory usage: {memory_usage_percent:.1f}%",
@@ -201,8 +206,7 @@ class HealthChecker:
             }
         except ImportError:
             # psutil not available, use basic check
-            import sys
-            memory_usage = sys.getsizeof({})  # Basic check
+            # Basic check - no need to store result
             return {
                 "healthy": True,
                 "message": "Basic memory check passed",
@@ -219,14 +223,14 @@ class HealthChecker:
         """Check disk space health."""
         try:
             import shutil
-            
+
             # Check disk space in current directory
             total, used, free = shutil.disk_usage(".")
             free_percent = (free / total) * 100
-            
+
             # Consider unhealthy if less than 10% free space
             healthy = free_percent > 10
-            
+
             return {
                 "healthy": healthy,
                 "message": f"Disk space: {free_percent:.1f}% free",
@@ -244,7 +248,7 @@ class HealthChecker:
 
     def register_check(self, name: str, check_func: callable) -> None:
         """Register a custom health check.
-        
+
         Args:
             name: Name of the check
             check_func: Async function that returns health status
@@ -270,23 +274,20 @@ def get_health_checker() -> HealthChecker:
 
 async def check_system_health(checks: list[str] = None) -> dict[str, Any]:
     """Check system health.
-    
+
     Args:
         checks: List of specific checks to run
-        
+
     Returns:
         Health check results
-        
+
     Raises:
         HTTPException: If system is unhealthy
     """
     health_checker = get_health_checker()
     results = await health_checker.check_health(checks)
-    
+
     if not results["overall_healthy"]:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=results
-        )
-    
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=results)
+
     return results

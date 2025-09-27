@@ -38,7 +38,7 @@ class TestAlertManager:
             "disk_usage_percent": 60.0,
             "consecutive_failures": 0,
         }
-        
+
         alerts = await manager.check_alerts(metrics)
         assert len(alerts) == 0
 
@@ -53,7 +53,7 @@ class TestAlertManager:
             "disk_usage_percent": 60.0,
             "consecutive_failures": 0,
         }
-        
+
         alerts = await manager.check_alerts(metrics)
         assert len(alerts) > 0
         assert any(alert["alert_type"] == "HIGH_ERROR_RATE" for alert in alerts)
@@ -62,12 +62,12 @@ class TestAlertManager:
     async def test_resolve_alert(self):
         """Test resolving an alert."""
         manager = AlertManager()
-        
+
         # Create an alert first
         metrics = {"error_rate_percent": 15.0}
         alerts = await manager.check_alerts(metrics)
         assert len(alerts) > 0
-        
+
         # Resolve the alert
         resolved = await manager.resolve_alert("HIGH_ERROR_RATE")
         assert resolved
@@ -95,7 +95,7 @@ class TestAlertManager:
         """Test getting alert statistics."""
         manager = AlertManager()
         stats = manager.get_alert_stats()
-        
+
         assert "total_alerts" in stats
         assert "active_alerts" in stats
         assert "resolved_alerts" in stats
@@ -105,7 +105,7 @@ class TestAlertManager:
         """Test updating alert thresholds."""
         manager = AlertManager()
         new_thresholds = {"error_rate_percent": 20.0}
-        
+
         manager.update_thresholds(new_thresholds)
         assert manager.alert_thresholds["error_rate_percent"] == 20.0
 
@@ -121,10 +121,10 @@ class TestAlertNotifier:
     def test_register_handler(self):
         """Test registering notification handler."""
         notifier = AlertNotifier()
-        
+
         async def test_handler(alert):
             pass
-        
+
         notifier.register_handler(test_handler)
         assert len(notifier.notification_handlers) == 1
 
@@ -132,19 +132,19 @@ class TestAlertNotifier:
     async def test_send_notification(self):
         """Test sending notification."""
         notifier = AlertNotifier()
-        
+
         # Register a test handler
         handler_called = False
-        
+
         async def test_handler(alert):
             nonlocal handler_called
             handler_called = True
-        
+
         notifier.register_handler(test_handler)
-        
+
         alert = {"alert_type": "TEST", "message": "Test alert"}
         await notifier.send_notification(alert)
-        
+
         assert handler_called
 
     @pytest.mark.asyncio
@@ -152,7 +152,7 @@ class TestAlertNotifier:
         """Test sending email notification."""
         notifier = AlertNotifier()
         alert = {"alert_type": "TEST", "message": "Test alert"}
-        
+
         # Should not raise exception
         await notifier.send_email_notification(alert)
 
@@ -161,7 +161,7 @@ class TestAlertNotifier:
         """Test sending webhook notification."""
         notifier = AlertNotifier()
         alert = {"alert_type": "TEST", "message": "Test alert"}
-        
+
         # Should not raise exception
         await notifier.send_webhook_notification(alert)
 
@@ -170,7 +170,7 @@ class TestAlertNotifier:
         """Test sending Slack notification."""
         notifier = AlertNotifier()
         alert = {"alert_type": "TEST", "message": "Test alert"}
-        
+
         # Should not raise exception
         await notifier.send_slack_notification(alert)
 
@@ -182,7 +182,7 @@ class TestGlobalFunctions:
         """Test getting alert manager."""
         manager = get_alert_manager()
         assert isinstance(manager, AlertManager)
-        
+
         # Should return the same instance
         manager2 = get_alert_manager()
         assert manager is manager2
@@ -191,7 +191,7 @@ class TestGlobalFunctions:
         """Test getting alert notifier."""
         notifier = get_alert_notifier()
         assert isinstance(notifier, AlertNotifier)
-        
+
         # Should return the same instance
         notifier2 = get_alert_notifier()
         assert notifier is notifier2
@@ -204,7 +204,7 @@ class TestGlobalFunctions:
             "avg_response_time_seconds": 1.0,
             "memory_usage_percent": 50.0,
         }
-        
+
         alerts = await check_and_alert(metrics)
         assert len(alerts) == 0
 
@@ -216,6 +216,6 @@ class TestGlobalFunctions:
             "avg_response_time_seconds": 1.0,
             "memory_usage_percent": 50.0,
         }
-        
+
         alerts = await check_and_alert(metrics)
         assert len(alerts) > 0

@@ -13,10 +13,10 @@ from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFi
 from fastapi.responses import JSONResponse
 
 from mits_validator import __version__
-from mits_validator.alerting import check_and_alert, get_alert_manager
+from mits_validator.alerting import get_alert_manager
 from mits_validator.async_validation import get_async_validation_engine
 from mits_validator.findings import create_finding
-from mits_validator.health_checks import check_system_health, get_health_checker
+from mits_validator.health_checks import check_system_health
 from mits_validator.metrics import get_metrics_collector
 from mits_validator.models import FindingLevel, ValidationRequest, ValidationResponse
 from mits_validator.profiles import get_profile
@@ -133,7 +133,9 @@ def metrics() -> str:
     description="Comprehensive health check including dependencies",
     response_description="Detailed health status",
 )
-async def detailed_health(checks: str = Query(None, description="Comma-separated list of checks to run")):
+async def detailed_health(
+    checks: str = Query(None, description="Comma-separated list of checks to run"),
+):
     """Detailed health check endpoint."""
     check_list = checks.split(",") if checks else None
     return await check_system_health(check_list)
@@ -158,16 +160,12 @@ async def validate_async(
     # Validate input
     if file is None and url is None:
         raise HTTPException(
-            status_code=400,
-            detail={"error": "Either file or url must be provided"}
+            status_code=400, detail={"error": "Either file or url must be provided"}
         )
-    
+
     if file is not None and url is not None:
-        raise HTTPException(
-            status_code=400,
-            detail={"error": "Cannot provide both file and url"}
-        )
-    
+        raise HTTPException(status_code=400, detail={"error": "Cannot provide both file and url"})
+
     # Get content
     if file is not None:
         content = await file.read()
@@ -178,21 +176,21 @@ async def validate_async(
             response = await client.get(url)
             content = response.content
             content_type = response.headers.get("content-type", "application/xml")
-    
+
     # Create validation request
     validation_request = ValidationRequest(
-        content=content.decode('utf-8') if isinstance(content, bytes) else content,
+        content=content.decode("utf-8") if isinstance(content, bytes) else content,
         content_type=content_type,
     )
-    
+
     # Generate validation ID
     validation_id = f"async_{int(time.time())}_{hash(content) % 10000}"
-    
+
     # Use memory-optimized validator for large files
     if len(content) > 10 * 1024 * 1024:  # 10MB threshold
         validator = MemoryOptimizedValidator(max_memory_mb=max_memory_mb)
         result = await validator.validate_large_file(content)
-        
+
         # Convert to ValidationResponse format
         return ValidationResponse(
             summary={
@@ -207,13 +205,13 @@ async def validate_async(
                 "profile": profile,
                 "memory_usage": result.get("memory_usage", {}),
                 "validation_levels": result.get("validation_levels", []),
-            }
+            },
         )
     else:
         # Use async validation engine for smaller files
         async_engine = get_async_validation_engine()
         result = await async_engine.validate_async(validation_request, validation_id, profile)
-        
+
         # Convert to ValidationResponse format
         return ValidationResponse(
             summary={
@@ -222,13 +220,16 @@ async def validate_async(
                 "errors": len([f for f in result.findings if f.level == FindingLevel.ERROR]),
                 "warnings": len([f for f in result.findings if f.level == FindingLevel.WARNING]),
             },
-            findings=[{
-                "level": f.level.value,
-                "code": f.code,
-                "message": f.message,
-                "location": f.location.__dict__ if f.location else None,
-            } for f in result.findings],
-            metadata=result.metadata
+            findings=[
+                {
+                    "level": f.level.value,
+                    "code": f.code,
+                    "message": f.message,
+                    "location": f.location.__dict__ if f.location else None,
+                }
+                for f in result.findings
+            ],
+            metadata=result.metadata,
         )
 
 
@@ -259,14 +260,11 @@ async def resolve_alert(alert_type: str):
     """Resolve an alert."""
     alert_manager = get_alert_manager()
     resolved = await alert_manager.resolve_alert(alert_type)
-    
+
     if resolved:
         return {"message": f"Alert {alert_type} resolved", "resolved": True}
     else:
-        raise HTTPException(
-            status_code=404,
-            detail={"error": f"Alert {alert_type} not found"}
-        )
+        raise HTTPException(status_code=404, detail={"error": f"Alert {alert_type} not found"})
 
 
 @app.post(

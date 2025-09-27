@@ -1,11 +1,9 @@
 """Alerting system for MITS Validator."""
 
-import asyncio
 import time
 from typing import Any
 
 import structlog
-from fastapi import HTTPException, status
 
 logger = structlog.get_logger(__name__)
 
@@ -15,7 +13,7 @@ class AlertManager:
 
     def __init__(self, alert_thresholds: dict[str, Any] = None):
         """Initialize alert manager.
-        
+
         Args:
             alert_thresholds: Dictionary of alert thresholds
         """
@@ -32,87 +30,93 @@ class AlertManager:
 
     async def check_alerts(self, metrics: dict[str, Any]) -> list[dict[str, Any]]:
         """Check metrics against alert thresholds.
-        
+
         Args:
             metrics: Current system metrics
-            
+
         Returns:
             List of triggered alerts
         """
         triggered_alerts = []
-        
+
         # Check error rate
         if "error_rate_percent" in metrics:
             if metrics["error_rate_percent"] > self.alert_thresholds["error_rate_percent"]:
+                error_rate = metrics["error_rate_percent"]
+                threshold = self.alert_thresholds["error_rate_percent"]
                 alert = await self._create_alert(
                     "HIGH_ERROR_RATE",
-                    f"Error rate is {metrics['error_rate_percent']:.1f}% (threshold: {self.alert_thresholds['error_rate_percent']}%)",
+                    f"Error rate is {error_rate:.1f}% (threshold: {threshold}%)",
                     "error",
-                    metrics
+                    metrics,
                 )
                 triggered_alerts.append(alert)
-        
+
         # Check response time
         if "avg_response_time_seconds" in metrics:
-            if metrics["avg_response_time_seconds"] > self.alert_thresholds["response_time_seconds"]:
+            response_time = metrics["avg_response_time_seconds"]
+            threshold = self.alert_thresholds["response_time_seconds"]
+            if response_time > threshold:
                 alert = await self._create_alert(
                     "HIGH_RESPONSE_TIME",
-                    f"Average response time is {metrics['avg_response_time_seconds']:.2f}s (threshold: {self.alert_thresholds['response_time_seconds']}s)",
+                    f"Average response time is {response_time:.2f}s (threshold: {threshold}s)",
                     "warning",
-                    metrics
+                    metrics,
                 )
                 triggered_alerts.append(alert)
-        
+
         # Check memory usage
         if "memory_usage_percent" in metrics:
-            if metrics["memory_usage_percent"] > self.alert_thresholds["memory_usage_percent"]:
+            memory_usage = metrics["memory_usage_percent"]
+            threshold = self.alert_thresholds["memory_usage_percent"]
+            if memory_usage > threshold:
                 alert = await self._create_alert(
                     "HIGH_MEMORY_USAGE",
-                    f"Memory usage is {metrics['memory_usage_percent']:.1f}% (threshold: {self.alert_thresholds['memory_usage_percent']}%)",
+                    f"Memory usage is {memory_usage:.1f}% (threshold: {threshold}%)",
                     "warning",
-                    metrics
+                    metrics,
                 )
                 triggered_alerts.append(alert)
-        
+
         # Check disk usage
         if "disk_usage_percent" in metrics:
-            if metrics["disk_usage_percent"] > self.alert_thresholds["disk_usage_percent"]:
+            disk_usage = metrics["disk_usage_percent"]
+            threshold = self.alert_thresholds["disk_usage_percent"]
+            if disk_usage > threshold:
                 alert = await self._create_alert(
                     "HIGH_DISK_USAGE",
-                    f"Disk usage is {metrics['disk_usage_percent']:.1f}% (threshold: {self.alert_thresholds['disk_usage_percent']}%)",
+                    f"Disk usage is {disk_usage:.1f}% (threshold: {threshold}%)",
                     "warning",
-                    metrics
+                    metrics,
                 )
                 triggered_alerts.append(alert)
-        
+
         # Check consecutive failures
         if "consecutive_failures" in metrics:
-            if metrics["consecutive_failures"] > self.alert_thresholds["consecutive_failures"]:
+            failures = metrics["consecutive_failures"]
+            threshold = self.alert_thresholds["consecutive_failures"]
+            if failures > threshold:
                 alert = await self._create_alert(
                     "CONSECUTIVE_FAILURES",
-                    f"Consecutive failures: {metrics['consecutive_failures']} (threshold: {self.alert_thresholds['consecutive_failures']})",
+                    f"Consecutive failures: {failures} (threshold: {threshold})",
                     "critical",
-                    metrics
+                    metrics,
                 )
                 triggered_alerts.append(alert)
-        
+
         return triggered_alerts
 
     async def _create_alert(
-        self, 
-        alert_type: str, 
-        message: str, 
-        severity: str, 
-        metrics: dict[str, Any]
+        self, alert_type: str, message: str, severity: str, metrics: dict[str, Any]
     ) -> dict[str, Any]:
         """Create an alert.
-        
+
         Args:
             alert_type: Type of alert
             message: Alert message
             severity: Alert severity (info, warning, error, critical)
             metrics: Current metrics
-            
+
         Returns:
             Alert dictionary
         """
@@ -124,31 +128,31 @@ class AlertManager:
             "metrics": metrics,
             "resolved": False,
         }
-        
+
         # Check if this alert is already active
         if alert_type in self.active_alerts:
             existing_alert = self.active_alerts[alert_type]
             # Check cooldown
             if time.time() - existing_alert["timestamp"] < self.alert_cooldown:
                 return existing_alert
-        
+
         # Store active alert
         self.active_alerts[alert_type] = alert
-        
+
         # Add to history
         self.alert_history.append(alert)
-        
+
         # Log alert
         logger.warning("Alert triggered", alert_type=alert_type, message=message, severity=severity)
-        
+
         return alert
 
     async def resolve_alert(self, alert_type: str) -> bool:
         """Resolve an alert.
-        
+
         Args:
             alert_type: Type of alert to resolve
-            
+
         Returns:
             True if alert was resolved, False if not found
         """
@@ -157,7 +161,7 @@ class AlertManager:
             alert["resolved"] = True
             alert["resolved_at"] = time.time()
             del self.active_alerts[alert_type]
-            
+
             logger.info("Alert resolved", alert_type=alert_type)
             return True
         return False
@@ -168,10 +172,10 @@ class AlertManager:
 
     def get_alert_history(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get alert history.
-        
+
         Args:
             limit: Maximum number of alerts to return
-            
+
         Returns:
             List of recent alerts
         """
@@ -182,13 +186,13 @@ class AlertManager:
         total_alerts = len(self.alert_history)
         active_alerts = len(self.active_alerts)
         resolved_alerts = total_alerts - active_alerts
-        
+
         # Count by severity
         severity_counts = {}
         for alert in self.alert_history:
             severity = alert.get("severity", "unknown")
             severity_counts[severity] = severity_counts.get(severity, 0) + 1
-        
+
         return {
             "total_alerts": total_alerts,
             "active_alerts": active_alerts,
@@ -198,7 +202,7 @@ class AlertManager:
 
     def update_thresholds(self, new_thresholds: dict[str, Any]) -> None:
         """Update alert thresholds.
-        
+
         Args:
             new_thresholds: New threshold values
         """
@@ -215,7 +219,7 @@ class AlertNotifier:
 
     def register_handler(self, handler: callable) -> None:
         """Register a notification handler.
-        
+
         Args:
             handler: Async function that handles notifications
         """
@@ -223,7 +227,7 @@ class AlertNotifier:
 
     async def send_notification(self, alert: dict[str, Any]) -> None:
         """Send notification for an alert.
-        
+
         Args:
             alert: Alert to notify about
         """
@@ -235,7 +239,7 @@ class AlertNotifier:
 
     async def send_email_notification(self, alert: dict[str, Any]) -> None:
         """Send email notification (placeholder).
-        
+
         Args:
             alert: Alert to notify about
         """
@@ -244,7 +248,7 @@ class AlertNotifier:
 
     async def send_webhook_notification(self, alert: dict[str, Any]) -> None:
         """Send webhook notification (placeholder).
-        
+
         Args:
             alert: Alert to notify about
         """
@@ -253,7 +257,7 @@ class AlertNotifier:
 
     async def send_slack_notification(self, alert: dict[str, Any]) -> None:
         """Send Slack notification (placeholder).
-        
+
         Args:
             alert: Alert to notify about
         """
@@ -287,21 +291,21 @@ def get_alert_notifier() -> AlertNotifier:
 
 async def check_and_alert(metrics: dict[str, Any]) -> list[dict[str, Any]]:
     """Check metrics and send alerts if needed.
-    
+
     Args:
         metrics: Current system metrics
-        
+
     Returns:
         List of triggered alerts
     """
     alert_manager = get_alert_manager()
     notifier = get_alert_notifier()
-    
+
     # Check for alerts
     triggered_alerts = await alert_manager.check_alerts(metrics)
-    
+
     # Send notifications for new alerts
     for alert in triggered_alerts:
         await notifier.send_notification(alert)
-    
+
     return triggered_alerts
