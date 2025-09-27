@@ -1,6 +1,5 @@
 """Tests for rate limiting functionality."""
 
-
 import pytest
 from mits_validator.rate_limiter import (
     ClientRateLimiter,

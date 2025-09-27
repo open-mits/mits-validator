@@ -1,6 +1,5 @@
 """Test enhanced Schematron validation rules."""
 
-
 from mits_validator.models import FindingLevel
 from mits_validator.validation.schematron import validate_schematron
 
