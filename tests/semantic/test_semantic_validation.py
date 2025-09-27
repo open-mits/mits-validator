@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import pytest
-
 from mits_validator.levels.semantic import SemanticValidator
 
 

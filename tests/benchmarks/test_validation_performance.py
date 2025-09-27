@@ -3,7 +3,6 @@
 import time
 
 import pytest
-
 from mits_validator.validation_engine import ValidationEngine
 
 

@@ -3,7 +3,6 @@
 from unittest.mock import patch
 
 import httpx
-
 from mits_validator.models import FindingLevel
 from mits_validator.url_fetcher import URLFetcher, get_url_fetcher
 

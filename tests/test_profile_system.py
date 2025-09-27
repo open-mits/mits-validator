@@ -4,7 +4,6 @@ import tempfile
 from pathlib import Path
 
 import yaml
-
 from mits_validator.models import FindingLevel
 from mits_validator.profile_loader import ProfileLoader, get_profile_loader
 from mits_validator.profile_models import IntakeLimits, ProfileConfig, create_intake_limits
