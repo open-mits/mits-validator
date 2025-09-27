@@ -260,11 +260,21 @@ def build_v1_envelope(
                 "rule_ref": finding.rule_ref,
             }
             if finding.location:
-                finding_dict["location"] = {
-                    "line": finding.location.line,
-                    "column": finding.location.column,
-                    "xpath": finding.location.xpath,
-                }
+                # Handle both Location objects and dicts
+                if hasattr(finding.location, "line"):
+                    # Location object
+                    finding_dict["location"] = {
+                        "line": finding.location.line,
+                        "column": finding.location.column,
+                        "xpath": finding.location.xpath,
+                    }
+                else:
+                    # Dict
+                    finding_dict["location"] = {
+                        "line": finding.location.get("line"),
+                        "column": finding.location.get("column"),
+                        "xpath": finding.location.get("xpath"),
+                    }
             all_findings.append(finding_dict)
 
     # Count errors and warnings

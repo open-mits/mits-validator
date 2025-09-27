@@ -46,8 +46,8 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# Git
-.git/
+# Git (allow .git for version detection in build)
+# .git/
 .gitignore
 
 # Testing

@@ -18,15 +18,23 @@ RUN pip install --no-cache-dir uv
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files
+# Copy dependency files and git metadata
 COPY pyproject.toml uv.lock ./
+COPY .git ./.git
+COPY LICENSE README.md ./
+COPY src/ ./src/
 
 # Create virtual environment and install dependencies
 RUN uv venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install dependencies
-RUN uv sync --frozen --no-dev
+# Set version for setuptools-scm since git metadata isn't available in container
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.1.0
+# Install build dependencies in the virtual environment
+RUN uv pip install hatchling hatch-vcs editables
+# Install the package in development mode
+RUN uv pip install -e . --no-build-isolation
 
 # Stage 2: Runtime
 FROM python:3.12-slim as runtime
