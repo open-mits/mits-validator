@@ -14,6 +14,7 @@ from fastapi.responses import JSONResponse
 
 from mits_validator import __version__
 from mits_validator.findings import create_finding
+from mits_validator.metrics import get_metrics_collector
 from mits_validator.models import ValidationRequest, ValidationResponse
 from mits_validator.profiles import get_profile
 from mits_validator.validation_engine import ValidationEngine, build_v1_envelope
@@ -106,6 +107,19 @@ def _create_error_response(
 def health() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "ok", "version": __version__}
+
+
+@app.get(
+    "/metrics",
+    tags=["monitoring"],
+    summary="Prometheus Metrics",
+    description="Prometheus metrics endpoint for monitoring",
+    response_description="Prometheus metrics in text format",
+)
+def metrics() -> str:
+    """Prometheus metrics endpoint."""
+    metrics_collector = get_metrics_collector()
+    return metrics_collector.get_metrics()
 
 
 @app.post(
