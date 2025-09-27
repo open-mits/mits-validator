@@ -23,7 +23,7 @@ Thank you for your interest in contributing to the MITS Validator! This guide wi
    ```bash
    # Using uv (recommended)
    uv sync -E dev
-   
+
    # Or with pip
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -135,14 +135,14 @@ def validate_xml(content: bytes, schema_path: Optional[str] = None) -> Validatio
 ```python
 def validate_xml(content: bytes, schema_path: Optional[str] = None) -> ValidationResult:
     """Validate XML content against schema.
-    
+
     Args:
         content: XML content to validate
         schema_path: Optional path to XSD schema
-        
+
     Returns:
         ValidationResult with findings
-        
+
     Example:
         >>> result = validate_xml(b"<xml>content</xml>")
         >>> print(result.valid)
@@ -178,10 +178,10 @@ def test_validation_success():
     """Test successful validation."""
     # Arrange
     xml_content = b"<MITS><Property><PropertyID>123</PropertyID></Property></MITS>"
-    
+
     # Act
     result = validate_xml(xml_content)
-    
+
     # Assert
     assert result.valid is True
     assert len(result.findings) == 0

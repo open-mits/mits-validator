@@ -1,8 +1,8 @@
 # ADR-0001: Validation Levels Architecture
 
-**Date**: 2024-01-15  
-**Status**: Accepted  
-**Deciders**: Core Maintainers  
+**Date**: 2024-01-15
+**Status**: Accepted
+**Deciders**: Core Maintainers
 
 ## Context
 
@@ -40,7 +40,7 @@ class ValidationLevelProtocol:
     def validate(self, content: bytes) -> ValidationResult:
         """Validate content and return results."""
         pass
-    
+
     def get_name(self) -> str:
         """Get the name of this validation level."""
         pass
@@ -100,7 +100,7 @@ class ValidationEngine:
     def __init__(self, rules_dir: Path, version: str):
         self._levels = {}
         self._register_levels()
-    
+
     def validate(self, content: bytes, levels: list[str] = None) -> ValidationResult:
         results = []
         for level_name in self._get_enabled_levels(levels):

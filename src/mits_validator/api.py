@@ -157,7 +157,11 @@ async def validate(
 
 
 async def _validate_file_upload(
-    file: UploadFile, max_size_mb: int, start_time: float, profile: str | None = None, mode: str = "xsd"
+    file: UploadFile,
+    max_size_mb: int,
+    start_time: float,
+    profile: str | None = None,
+    mode: str = "xsd",
 ) -> JSONResponse:
     """Validate file upload."""
     # Get validation profile
@@ -171,7 +175,7 @@ async def _validate_file_upload(
             f"Content type '{content_type}' not allowed for profile '{validation_profile.name}'",
         )
         return _create_error_response(error_finding, 415, "file")
-    
+
     # Generate warning for suspicious content types
     suspicious_types = ["application/octet-stream", "text/plain"]
     if content_type.lower() in suspicious_types:
@@ -238,7 +242,7 @@ async def _validate_url(
     # Fetch URL content with network error handling
     try:
         content, content_type, size_bytes = await _fetch_url_content(url, max_size_mb)
-        
+
         # Create validation request with fetched content
         validation_request = ValidationRequest(
             content=content,
@@ -263,9 +267,7 @@ async def _validate_url(
 
     except Exception as e:
         # Network or other error occurred
-        error_finding = create_finding(
-            "NETWORK:FETCH_ERROR", f"Failed to fetch URL: {str(e)}"
-        )
+        error_finding = create_finding("NETWORK:FETCH_ERROR", f"Failed to fetch URL: {str(e)}")
         return _create_error_response(error_finding, 502, "url")
 
     return JSONResponse(
@@ -281,7 +283,7 @@ async def _fetch_url_content(url: str, max_size_mb: int) -> tuple[bytes, str, in
     """Fetch URL content with size limits and timeout handling."""
     max_size_bytes = max_size_mb * 1024 * 1024
     timeout = httpx.Timeout(connect=10.0, read=30.0, write=10.0, pool=5.0)
-    
+
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
         try:
             async with client.stream("GET", url) as response:
@@ -290,10 +292,10 @@ async def _fetch_url_content(url: str, max_size_mb: int) -> tuple[bytes, str, in
                     raise httpx.HTTPStatusError(
                         f"HTTP {response.status_code}", request=response.request, response=response
                     )
-                
+
                 # Get content type
                 content_type = response.headers.get("content-type", "application/octet-stream")
-                
+
                 # Stream content with size limit
                 content = b""
                 async for chunk in response.aiter_bytes():
@@ -302,9 +304,9 @@ async def _fetch_url_content(url: str, max_size_mb: int) -> tuple[bytes, str, in
                         raise httpx.RequestError(
                             f"Content size exceeds limit of {max_size_bytes} bytes"
                         )
-                
+
                 return content, content_type, len(content)
-                
+
         except httpx.TimeoutException as e:
             raise Exception(f"NETWORK:TIMEOUT - Request timed out: {str(e)}") from e
         except httpx.ConnectError as e:

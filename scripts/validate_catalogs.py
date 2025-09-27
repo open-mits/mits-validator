@@ -4,7 +4,7 @@
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any
 
 import jsonschema
 from jsonschema import Draft202012Validator
@@ -22,7 +22,7 @@ def validate_catalogs() -> int:
     catalogs_dir = rules_dir / "mits-5.0" / "catalogs"
 
     # Load schemas
-    schemas: Dict[str, Dict[str, Any]] = {}
+    schemas: dict[str, dict[str, Any]] = {}
     for schema_file in schemas_dir.glob("*.schema.json"):
         try:
             with open(schema_file) as f:
@@ -65,7 +65,7 @@ def validate_catalogs() -> int:
 
 
 def validate_file_against_schema(
-    file_path: Path, schema: Dict[str, Any] | None, file_type: str
+    file_path: Path, schema: dict[str, Any] | None, file_type: str
 ) -> int:
     """Validate a single file against its schema."""
     if not schema:
@@ -81,7 +81,7 @@ def validate_file_against_schema(
 
         # Check for duplicate codes
         if isinstance(data, list):
-            codes: Set[str] = set()
+            codes: set[str] = set()
             for item in data:
                 if "code" in item:
                     if item["code"] in codes:

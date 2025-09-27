@@ -89,7 +89,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "S"]
-ignore = ["S101"]  # allow asserts in tests
+ignore = ["S101", "S320"]  # allow asserts in tests, allow lxml parsing in validator
 
 # ---------------- MYPY ----------------
 [tool.mypy]
@@ -115,3 +115,8 @@ source = ["mits_validator"]
 [tool.coverage.report]
 show_missing = true
 fail_under = 80
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+]

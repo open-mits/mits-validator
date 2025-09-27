@@ -192,7 +192,9 @@ class CatalogLoader:
 
         return findings
 
-    def _load_single_enum(self, enum_file: Path, enum_name: str, registry: CatalogRegistry) -> list[Finding]:
+    def _load_single_enum(
+        self, enum_file: Path, enum_name: str, registry: CatalogRegistry
+    ) -> list[Finding]:
         """Load a single enum file."""
         findings: list[Finding] = []
 
@@ -301,7 +303,9 @@ class CatalogLoader:
                         Finding(
                             level=FindingLevel.ERROR,
                             code="CATALOG:SCHEMA_VALIDATION_ERROR",
-                            message=f"Specialization {spec_name} schema validation failed: {e.message}",
+                            message=(
+                                f"Specialization {spec_name} schema validation failed: {e.message}"
+                            ),
                             rule_ref="internal://Catalog",
                         )
                     )

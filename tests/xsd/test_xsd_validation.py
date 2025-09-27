@@ -1,10 +1,9 @@
 """Tests for XSD validation."""
 
-import pytest
 from pathlib import Path
 
 from mits_validator.models import FindingLevel
-from mits_validator.validation.xsd import validate_xsd, get_schema_info
+from mits_validator.validation.xsd import get_schema_info, validate_xsd
 
 
 class TestXSDValidation:
@@ -28,9 +27,9 @@ class TestXSDValidation:
     </Address>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_xsd(xml_content)
-        
+
         assert result.level == "XSD"
         assert len(result.findings) == 0
         assert result.duration_ms >= 0
@@ -53,9 +52,9 @@ class TestXSDValidation:
     </Address>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_xsd(xml_content)
-        
+
         assert result.level == "XSD"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -79,9 +78,9 @@ class TestXSDValidation:
     </Address>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_xsd(xml_content)
-        
+
         assert result.level == "XSD"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -89,7 +88,7 @@ class TestXSDValidation:
     def test_validate_missing_schema(self):
         """Test validation when schema file is missing."""
         result = validate_xsd("", schema_path=Path("/nonexistent/schema.xsd"))
-        
+
         assert result.level == "XSD"
         assert len(result.findings) == 1
         assert result.findings[0].level == FindingLevel.ERROR
@@ -114,9 +113,9 @@ class TestXSDValidation:
   </Property>
   <!-- Unclosed tag -->
 </PropertyMarketing>"""
-        
+
         result = validate_xsd(xml_content)
-        
+
         assert result.level == "XSD"
         # This XML is actually well-formed, so it should pass parsing
         # but might fail schema validation
@@ -124,11 +123,13 @@ class TestXSDValidation:
 
     def test_validate_from_file(self):
         """Test validation from file path."""
-        fixture_path = Path(__file__).parent.parent.parent / "fixtures" / "mits5" / "valid-property.xml"
-        
+        fixture_path = (
+            Path(__file__).parent.parent.parent / "fixtures" / "mits5" / "valid-property.xml"
+        )
+
         if fixture_path.exists():
             result = validate_xsd(fixture_path)
-            
+
             assert result.level == "XSD"
             # Should pass validation
             assert len(result.findings) == 0
@@ -136,13 +137,13 @@ class TestXSDValidation:
     def test_get_schema_info(self):
         """Test getting schema information."""
         info = get_schema_info()
-        
+
         assert "schema_path" in info
         assert "exists" in info
         assert "namespace" in info
         assert "root_element" in info
         assert "version" in info
-        
+
         if info["exists"]:
             assert info["namespace"] == "http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
             assert info["root_element"] == "PropertyMarketing"
@@ -176,9 +177,9 @@ class TestXSDValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_xsd(xml_content)
-        
+
         assert result.level == "XSD"
         assert len(result.findings) == 0
 
@@ -210,9 +211,9 @@ class TestXSDValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_xsd(xml_content)
-        
+
         assert result.level == "XSD"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -245,9 +246,9 @@ class TestXSDValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_xsd(xml_content)
-        
+
         assert result.level == "XSD"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)

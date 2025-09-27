@@ -7,7 +7,7 @@ This guide explains how to add, edit, and maintain MITS validation rules and cat
 The MITS Validator supports multiple types of rules and catalogs:
 
 - **XSD Schemas** - XML structure validation
-- **Schematron Rules** - Business logic validation  
+- **Schematron Rules** - Business logic validation
 - **MITS Catalogs** - Reference data for validation
 - **Validation Profiles** - Configuration sets
 
@@ -41,7 +41,7 @@ rules/xsd/
     <xs:complexType>
       <xs:sequence>
         <xs:element name="Header" type="HeaderType"/>
-        <xs:element name="Property" type="PropertyType" 
+        <xs:element name="Property" type="PropertyType"
                     minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attribute name="version" type="xs:string" use="required"/>
@@ -80,7 +80,7 @@ rules/schematron/
 ### Example
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" 
+<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron"
             queryBinding="xslt2">
   <sch:title>MITS Business Rules</sch:title>
 
@@ -165,7 +165,7 @@ All catalog entries follow this structure:
   },
   {
     "code": "PARKING",
-    "name": "Parking Fee", 
+    "name": "Parking Fee",
     "description": "Fees for parking spaces or permits",
     "aliases": ["PARKING_PERMIT", "GARAGE_FEE"]
   }
@@ -181,7 +181,7 @@ All catalog entries follow this structure:
     "description": "Charge is mandatory for this item"
   },
   {
-    "code": "OPTIONAL", 
+    "code": "OPTIONAL",
     "name": "Optional",
     "description": "Charge is optional for this item"
   }
@@ -192,7 +192,7 @@ All catalog entries follow this structure:
 ```json
 {
   "pet_type": "DOG",
-  "size_category": "MEDIUM", 
+  "size_category": "MEDIUM",
   "weight_limit": 50.0,
   "vaccination_required": true,
   "deposit_required": true,

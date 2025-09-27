@@ -24,7 +24,7 @@ class TestCLIIntegration:
     def test_cli_validate_file_success(self):
         """Test CLI validation with valid XML file."""
         # Create a temporary XML file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?><root><item>test</item></root>')
             xml_file = Path(f.name)
 
@@ -39,7 +39,7 @@ class TestCLIIntegration:
     def test_cli_validate_file_json(self):
         """Test CLI validation with JSON output."""
         # Create a temporary XML file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?><root><item>test</item></root>')
             xml_file = Path(f.name)
 
@@ -47,7 +47,7 @@ class TestCLIIntegration:
             result = runner.invoke(app, ["validate", "--file", str(xml_file), "--json"])
             # Should exit with code 1 due to XSD validation errors
             assert result.exit_code == 1
-            
+
             # Should be valid JSON (may have debug output mixed in)
             output = result.stdout
             # Remove any debug output before the JSON
@@ -75,7 +75,9 @@ class TestCLIIntegration:
 
     def test_cli_validate_both_inputs(self):
         """Test CLI validation with both file and URL."""
-        result = runner.invoke(app, ["validate", "--file", "test.xml", "--url", "http://example.com"])
+        result = runner.invoke(
+            app, ["validate", "--file", "test.xml", "--url", "http://example.com"]
+        )
         assert result.exit_code == 1
         assert "Cannot provide both" in result.stdout or "Cannot provide both" in result.stderr
 
@@ -89,7 +91,7 @@ class TestCLIIntegration:
     def test_cli_validate_profile(self):
         """Test CLI validation with different profile."""
         # Create a temporary XML file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?><root><item>test</item></root>')
             xml_file = Path(f.name)
 

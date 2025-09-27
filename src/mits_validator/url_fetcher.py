@@ -100,7 +100,11 @@ class URLFetcher:
             )
         except httpx.ConnectError as e:
             error_str = str(e).lower()
-            if "name or service not known" in error_str or "dns" in error_str or "name resolution" in error_str:
+            if (
+                "name or service not known" in error_str
+                or "dns" in error_str
+                or "name resolution" in error_str
+            ):
                 findings.append(
                     Finding(
                         level=FindingLevel.ERROR,

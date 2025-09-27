@@ -24,14 +24,14 @@ We follow [Semantic Versioning](https://semver.org/):
    ```bash
    # Create release branch
    git checkout -b release/v0.1.0
-   
+
    # Update version
    # Commit changes
    git commit -m "chore: prepare v0.1.0 release"
-   
+
    # Create tag
    git tag -a v0.1.0 -m "Release v0.1.0"
-   
+
    # Push tag
    git push origin v0.1.0
    ```
@@ -40,7 +40,7 @@ We follow [Semantic Versioning](https://semver.org/):
    ```bash
    # Build package
    uv build
-   
+
    # Publish to PyPI
    uv publish
    ```
@@ -58,7 +58,7 @@ We follow [Semantic Versioning](https://semver.org/):
    ```bash
    # Install pre-release
    pip install mits-validator==0.1.0a1
-   
+
    # Test functionality
    mits-validate version
    ```
@@ -156,7 +156,7 @@ updates:
     labels:
       - "dependencies"
       - "automated"
-  
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -216,7 +216,7 @@ updates:
    ```bash
    # Check for vulnerabilities
    uv audit
-   
+
    # Update vulnerable dependencies
    # Test thoroughly
    # Deploy immediately

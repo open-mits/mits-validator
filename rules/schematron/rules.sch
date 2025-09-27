@@ -2,7 +2,7 @@
 <schema xmlns="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
   <title>MITS Property Validation Rules</title>
   <ns prefix="mits" uri="http://www.mits.org/schema"/>
-  
+
   <pattern id="property-id-required">
     <title>Property ID is required</title>
     <rule context="mits:Property">
@@ -11,7 +11,7 @@
       </assert>
     </rule>
   </pattern>
-  
+
   <pattern id="price-positive">
     <title>Price must be positive</title>
     <rule context="mits:Property[mits:Price]">
@@ -20,7 +20,7 @@
       </assert>
     </rule>
   </pattern>
-  
+
   <pattern id="address-complete">
     <title>Address must be complete</title>
     <rule context="mits:Property/mits:Address">
@@ -29,7 +29,7 @@
       </assert>
     </rule>
   </pattern>
-  
+
   <pattern id="provider-name-required">
     <title>Provider name is required</title>
     <rule context="mits:Header/mits:Provider">

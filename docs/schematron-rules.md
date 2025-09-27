@@ -156,7 +156,7 @@ Create a new `.sch` file in `rules/schematron/5.0/`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" 
+<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron"
             queryBinding="xslt2"
             xmlns="http://www.mits.org/schema/PropertyMarketing/ILS/5.0">
 
@@ -254,9 +254,9 @@ Create tests in `tests/schematron/`:
 def test_custom_rule():
     """Test custom business rule."""
     xml_content = """<!-- Your test XML -->"""
-    
+
     result = validate_schematron(xml_content)
-    
+
     # Assert expected findings
     assert len(result.findings) == 1
     assert result.findings[0].level == FindingLevel.ERROR

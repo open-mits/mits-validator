@@ -22,7 +22,7 @@ class SchematronValidator:
         """Check if Schematron rules are available."""
         if not self.rules_path.exists():
             return
-        
+
         # Check for any .sch files in the schematron directory
         if any(self.rules_path.glob("*.sch")):
             self._rules_available = True
@@ -31,7 +31,7 @@ class SchematronValidator:
         """Load available Schematron rule files."""
         if not self.rules_path.exists():
             return []
-        
+
         return list(self.rules_path.glob("*.sch"))
 
     def validate(self, content: bytes) -> ValidationResult:
@@ -90,9 +90,7 @@ class SchematronValidator:
             )
 
         duration_ms = int((time.time() - start_time) * 1000)
-        return ValidationResult(
-            level=self.get_name(), findings=findings, duration_ms=duration_ms
-        )
+        return ValidationResult(level=self.get_name(), findings=findings, duration_ms=duration_ms)
 
     def get_name(self) -> str:
         """Get the name of this validation level."""

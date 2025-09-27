@@ -4,14 +4,14 @@ This document outlines the development roadmap for the MITS Validator project.
 
 ## Current Status
 
-**Version**: 0.1.0 (Pre-release)  
-**Status**: ✅ Foundation Complete  
+**Version**: 0.1.0 (Pre-release)
+**Status**: ✅ Foundation Complete
 **Focus**: Core validation architecture and basic functionality
 
 ## Near-term (Q1 2024)
 
 ### v0.2.0 - XSD Conformance
-**Target**: March 2024  
+**Target**: March 2024
 **Priority**: P0
 
 **Features**:
@@ -27,7 +27,7 @@ This document outlines the development roadmap for the MITS Validator project.
 - Performance benchmarks
 
 ### v0.3.0 - Business Rules
-**Target**: April 2024  
+**Target**: April 2024
 **Priority**: P0
 
 **Features**:
@@ -45,7 +45,7 @@ This document outlines the development roadmap for the MITS Validator project.
 ## Medium-term (Q2 2024)
 
 ### v0.4.0 - Semantic Validation
-**Target**: June 2024  
+**Target**: June 2024
 **Priority**: P1
 
 **Features**:
@@ -61,7 +61,7 @@ This document outlines the development roadmap for the MITS Validator project.
 - Advanced error reporting
 
 ### v0.5.0 - Performance & Scale
-**Target**: July 2024  
+**Target**: July 2024
 **Priority**: P1
 
 **Features**:
@@ -79,7 +79,7 @@ This document outlines the development roadmap for the MITS Validator project.
 ## Long-term (Q3-Q4 2024)
 
 ### v1.0.0 - Production Ready
-**Target**: September 2024  
+**Target**: September 2024
 **Priority**: P0
 
 **Features**:
@@ -95,7 +95,7 @@ This document outlines the development roadmap for the MITS Validator project.
 - SLA guarantees
 
 ### v1.1.0 - Advanced Features
-**Target**: December 2024  
+**Target**: December 2024
 **Priority**: P2
 
 **Features**:

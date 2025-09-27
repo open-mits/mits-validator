@@ -28,7 +28,7 @@ class XSDValidator:
             return False
 
         try:
-            with open(self.schema_path, 'rb') as f:
+            with open(self.schema_path, "rb") as f:
                 schema_doc = etree.parse(f)
             self._schema = etree.XMLSchema(schema_doc)
             self._schema_loaded = True
@@ -58,7 +58,7 @@ class XSDValidator:
             try:
                 # Parse XML content
                 xml_doc = etree.fromstring(content)
-                
+
                 # Validate against schema
                 if not self._schema.validate(xml_doc):
                     # Schema validation failed
@@ -70,7 +70,7 @@ class XSDValidator:
                             rule_ref="internal://XSD",
                         )
                     )
-                
+
             except etree.XMLSyntaxError as e:
                 findings.append(
                     Finding(

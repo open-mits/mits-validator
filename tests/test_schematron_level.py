@@ -15,10 +15,10 @@ class TestSchematronValidator:
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_dir = Path(temp_dir) / "rules" / "mits-5.0"
             rules_dir.mkdir(parents=True)
-            
+
             validator = SchematronValidator(rules_dir.parent, "mits-5.0")
             result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-            
+
             assert result.level == "Schematron"
             assert len(result.findings) == 1
             assert result.findings[0].code == "SCHEMATRON:NO_RULES_LOADED"
@@ -30,10 +30,10 @@ class TestSchematronValidator:
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_dir = Path(temp_dir) / "rules" / "mits-5.0" / "schematron"
             rules_dir.mkdir(parents=True)
-            
+
             validator = SchematronValidator(Path(temp_dir) / "rules", "mits-5.0")
             result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-            
+
             assert result.level == "Schematron"
             assert len(result.findings) == 1
             assert result.findings[0].code == "SCHEMATRON:NO_RULES_LOADED"
@@ -44,13 +44,13 @@ class TestSchematronValidator:
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_dir = Path(temp_dir) / "rules" / "mits-5.0" / "schematron"
             rules_dir.mkdir(parents=True)
-            
+
             # Create a dummy .sch file
             (rules_dir / "rules.sch").write_text('<?xml version="1.0"?><schema></schema>')
-            
+
             validator = SchematronValidator(Path(temp_dir) / "rules", "mits-5.0")
             result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-            
+
             assert result.level == "Schematron"
             assert len(result.findings) == 0  # No findings when rules are available
 
@@ -59,13 +59,13 @@ class TestSchematronValidator:
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_dir = Path(temp_dir) / "rules" / "mits-5.0" / "schematron"
             rules_dir.mkdir(parents=True)
-            
+
             # Create a dummy .sch file
             (rules_dir / "rules.sch").write_text('<?xml version="1.0"?><schema></schema>')
-            
+
             validator = SchematronValidator(Path(temp_dir) / "rules", "mits-5.0")
-            result = validator.validate(b'<invalid xml content')
-            
+            result = validator.validate(b"<invalid xml content")
+
             assert result.level == "Schematron"
             assert len(result.findings) == 1
             assert result.findings[0].code == "SCHEMATRON:RULE_FAILURE"
@@ -77,7 +77,7 @@ class TestSchematronValidator:
         # Use a non-existent directory to trigger resource load failure
         validator = SchematronValidator(Path("/non/existent/path"), "mits-5.0")
         result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) == 1
         assert result.findings[0].code == "SCHEMATRON:NO_RULES_LOADED"
@@ -93,6 +93,6 @@ class TestSchematronValidator:
         """Test that duration is tracked correctly."""
         validator = SchematronValidator()
         result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-        
+
         assert result.duration_ms >= 0
         assert isinstance(result.duration_ms, int)

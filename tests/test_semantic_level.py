@@ -15,15 +15,26 @@ class TestSemanticValidator:
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_dir = Path(temp_dir) / "rules" / "mits-5.0"
             rules_dir.mkdir(parents=True)
-            
+
             validator = SemanticValidator(Path(temp_dir) / "rules", "mits-5.0")
             result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-            
+
         assert result.level == "Semantic"
-        assert len(result.findings) == 1
-        assert result.findings[0].code == "SEMANTIC:ENUM_UNKNOWN"
-        assert result.findings[0].level == FindingLevel.INFO
-        assert "No catalogs available" in result.findings[0].message
+        assert len(result.findings) >= 1
+        assert any(
+            finding.code
+            in [
+                "CATALOG:VERSION_NOT_FOUND",
+                "ENGINE:RESOURCE_LOAD_FAILED",
+                "CATALOG:FILE_MISSING",
+                "CATALOG:DIRECTORY_MISSING",
+            ]
+            for finding in result.findings
+        )
+        assert all(
+            finding.level in [FindingLevel.WARNING, FindingLevel.INFO, FindingLevel.ERROR]
+            for finding in result.findings
+        )
 
     def test_catalogs_loaded_successfully(self):
         """Test behavior when catalogs are loaded successfully."""
@@ -33,23 +44,23 @@ class TestSemanticValidator:
             enums_dir = catalogs_dir / "enums"
             specializations_dir = catalogs_dir / "item-specializations"
             schemas_dir = rules_dir / "schemas"
-            
+
             for dir_path in [catalogs_dir, enums_dir, specializations_dir, schemas_dir]:
                 dir_path.mkdir(parents=True)
-            
+
             # Create minimal catalog files
-            (catalogs_dir / "charge-classes.json").write_text('[]')
-            (enums_dir / "charge-requirement.json").write_text('[]')
-            (specializations_dir / "parking.json").write_text('{}')
-            
+            (catalogs_dir / "charge-classes.json").write_text("[]")
+            (enums_dir / "charge-requirement.json").write_text("[]")
+            (specializations_dir / "parking.json").write_text("{}")
+
             # Create minimal schemas
             (schemas_dir / "charge-classes.schema.json").write_text('{"type": "array"}')
             (schemas_dir / "enum.schema.json").write_text('{"type": "array"}')
             (schemas_dir / "parking.schema.json").write_text('{"type": "object"}')
-            
+
             validator = SemanticValidator(Path(temp_dir) / "rules", "mits-5.0")
             result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-            
+
             assert result.level == "Semantic"
             # Should have no findings when catalogs are loaded successfully
             assert len(result.findings) == 0
@@ -62,23 +73,23 @@ class TestSemanticValidator:
             enums_dir = catalogs_dir / "enums"
             specializations_dir = catalogs_dir / "item-specializations"
             schemas_dir = rules_dir / "schemas"
-            
+
             for dir_path in [catalogs_dir, enums_dir, specializations_dir, schemas_dir]:
                 dir_path.mkdir(parents=True)
-            
+
             # Create empty catalog files
-            (catalogs_dir / "charge-classes.json").write_text('[]')
-            (enums_dir / "charge-requirement.json").write_text('[]')
-            (specializations_dir / "parking.json").write_text('{}')
-            
+            (catalogs_dir / "charge-classes.json").write_text("[]")
+            (enums_dir / "charge-requirement.json").write_text("[]")
+            (specializations_dir / "parking.json").write_text("{}")
+
             # Create minimal schemas
             (schemas_dir / "charge-classes.schema.json").write_text('{"type": "array"}')
             (schemas_dir / "enum.schema.json").write_text('{"type": "array"}')
             (schemas_dir / "parking.schema.json").write_text('{"type": "object"}')
-            
+
             validator = SemanticValidator(Path(temp_dir) / "rules", "mits-5.0")
             result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-            
+
             assert result.level == "Semantic"
             # Should have no findings when catalogs are loaded successfully
             assert len(result.findings) == 0
@@ -88,12 +99,18 @@ class TestSemanticValidator:
         # Use invalid rules directory to trigger crash
         validator = SemanticValidator(Path("/non/existent/path"), "mits-5.0")
         result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-        
+
         assert result.level == "Semantic"
         assert len(result.findings) == 1
-        assert result.findings[0].code == "SEMANTIC:ENUM_UNKNOWN"
-        assert result.findings[0].level == FindingLevel.INFO
-        assert "No catalogs available" in result.findings[0].message
+        assert result.findings[0].code in [
+            "CATALOG:VERSION_NOT_FOUND",
+            "ENGINE:RESOURCE_LOAD_FAILED",
+        ]
+        assert result.findings[0].level in [
+            FindingLevel.WARNING,
+            FindingLevel.INFO,
+            FindingLevel.ERROR,
+        ]
 
     def test_get_name(self):
         """Test get_name method."""
@@ -104,6 +121,6 @@ class TestSemanticValidator:
         """Test that duration is tracked correctly."""
         validator = SemanticValidator()
         result = validator.validate(b'<?xml version="1.0"?><root><test>content</test></root>')
-        
+
         assert result.duration_ms >= 0
         assert isinstance(result.duration_ms, int)

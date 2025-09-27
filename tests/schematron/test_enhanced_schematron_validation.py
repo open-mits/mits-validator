@@ -1,7 +1,5 @@
 """Test enhanced Schematron validation rules."""
 
-import pytest
-from pathlib import Path
 
 from mits_validator.models import FindingLevel
 from mits_validator.validation.schematron import validate_schematron
@@ -40,9 +38,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -78,9 +76,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -116,9 +114,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -154,9 +152,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -192,9 +190,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -230,9 +228,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -268,9 +266,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -306,9 +304,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -352,9 +350,9 @@ class TestEnhancedSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         # Should have no findings for valid XML
         assert len(result.findings) == 0

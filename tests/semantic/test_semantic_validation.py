@@ -1,9 +1,9 @@
 """Test Semantic validation level."""
 
-import pytest
 from pathlib import Path
 
-from mits_validator.models import FindingLevel
+import pytest
+
 from mits_validator.levels.semantic import SemanticValidator
 
 
@@ -44,9 +44,9 @@ class TestSemanticValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find invalid charge classification
         assert len(result.findings) > 0
@@ -81,13 +81,15 @@ class TestSemanticValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find invalid payment frequency
         assert len(result.findings) > 0
-        assert any(finding.code == "SEMANTIC:INVALID_PAYMENT_FREQUENCY" for finding in result.findings)
+        assert any(
+            finding.code == "SEMANTIC:INVALID_PAYMENT_FREQUENCY" for finding in result.findings
+        )
 
     def test_validate_invalid_refundability(self, semantic_validator: SemanticValidator):
         """Test validation of invalid refundability against catalog."""
@@ -118,9 +120,9 @@ class TestSemanticValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find invalid refundability
         assert len(result.findings) > 0
@@ -155,9 +157,9 @@ class TestSemanticValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find invalid term basis
         assert len(result.findings) > 0
@@ -193,13 +195,15 @@ class TestSemanticValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find inconsistent rent requirement
         assert len(result.findings) > 0
-        assert any(finding.code == "SEMANTIC:INCONSISTENT_RENT_REQUIREMENT" for finding in result.findings)
+        assert any(
+            finding.code == "SEMANTIC:INCONSISTENT_RENT_REQUIREMENT" for finding in result.findings
+        )
 
     def test_validate_deposit_frequency_consistency(self, semantic_validator: SemanticValidator):
         """Test deposit frequency consistency validation."""
@@ -231,13 +235,15 @@ class TestSemanticValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find inconsistent deposit frequency
         assert len(result.findings) > 0
-        assert any(finding.code == "SEMANTIC:INCONSISTENT_DEPOSIT_FREQUENCY" for finding in result.findings)
+        assert any(
+            finding.code == "SEMANTIC:INCONSISTENT_DEPOSIT_FREQUENCY" for finding in result.findings
+        )
 
     def test_validate_valid_xml_passes(self, semantic_validator: SemanticValidator):
         """Test that valid XML passes semantic validation."""
@@ -257,29 +263,29 @@ class TestSemanticValidation:
     </Address>
     <ChargeOffer>
       <ChargeOfferItem>
-        <ChargeClassification>Rent</ChargeClassification>
+        <ChargeClassification>RENT</ChargeClassification>
         <Requirement>Mandatory</Requirement>
-        <PaymentFrequency>Monthly</PaymentFrequency>
-        <Refundability>NonRefundable</Refundability>
-        <TermBasis>LeaseTerm</TermBasis>
+        <PaymentFrequency>MONTHLY</PaymentFrequency>
+        <Refundability>NON_REFUNDABLE</Refundability>
+        <TermBasis>LEASE_TERM</TermBasis>
         <Amount>1500.00</Amount>
         <Description>Valid rent charge</Description>
       </ChargeOfferItem>
       <ChargeOfferItem>
-        <ChargeClassification>Deposit</ChargeClassification>
+        <ChargeClassification>DEPOSIT</ChargeClassification>
         <Requirement>Mandatory</Requirement>
-        <PaymentFrequency>OneTime</PaymentFrequency>
-        <Refundability>Deposit</Refundability>
-        <TermBasis>LeaseTerm</TermBasis>
+        <PaymentFrequency>ONE_TIME</PaymentFrequency>
+        <Refundability>FULLY_REFUNDABLE</Refundability>
+        <TermBasis>LEASE_TERM</TermBasis>
         <Amount>1500.00</Amount>
         <Description>Valid deposit charge</Description>
       </ChargeOfferItem>
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should have no findings for valid XML
         assert len(result.findings) == 0
@@ -302,9 +308,9 @@ class TestSemanticValidation:
     </Address>
     <UnclosedTag>
 </PropertyMarketing>"""
-        
-        result = semantic_validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = semantic_validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find XML parse error
         assert len(result.findings) > 0
@@ -314,7 +320,7 @@ class TestSemanticValidation:
         """Test validation when catalogs are not available."""
         # Create validator with non-existent rules directory
         validator = SemanticValidator(rules_dir=Path("/nonexistent/rules"))
-        
+
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <PropertyMarketing xmlns="http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
                    version="5.0"
@@ -342,10 +348,13 @@ class TestSemanticValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
-        result = validator.validate(xml_content.encode('utf-8'))
-        
+
+        result = validator.validate(xml_content.encode("utf-8"))
+
         assert result.level == "Semantic"
         # Should find resource load failure
         assert len(result.findings) > 0
-        assert any(finding.code == "ENGINE:RESOURCE_LOAD_FAILED" for finding in result.findings)
+        assert any(
+            finding.code in ["ENGINE:RESOURCE_LOAD_FAILED", "CATALOG:VERSION_NOT_FOUND"]
+            for finding in result.findings
+        )

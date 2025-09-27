@@ -5,7 +5,7 @@ from .xsd import get_schema_info, validate_xsd
 
 __all__ = [
     "validate_xsd",
-    "get_schema_info", 
+    "get_schema_info",
     "validate_schematron",
     "get_rules_info",
 ]

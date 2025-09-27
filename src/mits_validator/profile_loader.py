@@ -20,14 +20,14 @@ class ProfileLoader:
     def load_profile(self, profile_name: str, version: str = "mits-5.0") -> ProfileConfig | None:
         """Load a profile by name."""
         profile_file = self.rules_dir / version / "profiles" / f"{profile_name}.yaml"
-        
+
         if not profile_file.exists():
             return None
 
         try:
             with open(profile_file) as f:
                 data = yaml.safe_load(f)
-            
+
             return self._parse_profile(data)
         except Exception:
             return None
@@ -62,7 +62,7 @@ class ProfileLoader:
         profiles_dir = self.rules_dir / version / "profiles"
         if not profiles_dir.exists():
             return []
-        
+
         return [f.stem for f in profiles_dir.glob("*.yaml")]
 
 

@@ -157,7 +157,7 @@ The validator uses a modular architecture with multiple validation levels:
 ### Validation Profiles
 - **default** - All levels enabled, 10MB limit
 - **pms** - Property Management System profile, 5MB limit
-- **ils** - Internet Listing Service profile, 20MB limit  
+- **ils** - Internet Listing Service profile, 20MB limit
 - **marketplace** - Marketplace profile, 50MB limit
 
 ### Error Codes

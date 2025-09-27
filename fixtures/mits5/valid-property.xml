@@ -2,7 +2,7 @@
 <PropertyMarketing xmlns="http://www.mits.org/schema/PropertyMarketing/ILS/5.0"
                    version="5.0"
                    timestamp="2025-09-15T10:30:00Z">
-  
+
   <Property>
     <PropertyID>PROP-001</PropertyID>
     <PropertyName>Sunset Apartments</PropertyName>
@@ -40,7 +40,7 @@
       </ChargeOfferItem>
     </ChargeOffer>
   </Property>
-  
+
   <Floorplan propertyID="PROP-001">
     <FloorplanID>FP-001</FloorplanID>
     <FloorplanName>1 Bedroom</FloorplanName>
@@ -63,5 +63,5 @@
       </ChargeOffer>
     </Unit>
   </Floorplan>
-  
+
 </PropertyMarketing>

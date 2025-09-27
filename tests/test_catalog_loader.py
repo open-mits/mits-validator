@@ -1,11 +1,7 @@
 """Tests for catalog loader functionality."""
 
 import json
-import tempfile
 from pathlib import Path
-from unittest.mock import patch
-
-import pytest
 
 from mits_validator.catalog_loader import CatalogLoader, CatalogRegistry
 from mits_validator.models import FindingLevel
@@ -30,16 +26,12 @@ class TestCatalogLoader:
         schemas_dir.mkdir(parents=True)
 
         # Create charge classes
-        charge_classes_data = [
-            {"code": "RENT", "name": "Rent", "description": "Monthly rent"}
-        ]
+        charge_classes_data = [{"code": "RENT", "name": "Rent", "description": "Monthly rent"}]
         with open(catalogs_dir / "charge-classes.json", "w") as f:
             json.dump(charge_classes_data, f)
 
         # Create enum
-        enum_data = [
-            {"code": "REQUIRED", "name": "Required", "description": "Mandatory charge"}
-        ]
+        enum_data = [{"code": "REQUIRED", "name": "Required", "description": "Mandatory charge"}]
         with open(enums_dir / "charge-requirement.json", "w") as f:
             json.dump(enum_data, f)
 
@@ -50,7 +42,7 @@ class TestCatalogLoader:
             "structure_types": ["SURFACE", "GARAGE"],
             "size_types": ["COMPACT", "STANDARD"],
             "availability": "BOTH",
-            "units_of_measure": ["HOUR", "DAY"]
+            "units_of_measure": ["HOUR", "DAY"],
         }
         with open(specializations_dir / "parking.json", "w") as f:
             json.dump(specialization_data, f)
@@ -60,12 +52,9 @@ class TestCatalogLoader:
             "type": "array",
             "items": {
                 "type": "object",
-                "properties": {
-                    "code": {"type": "string"},
-                    "name": {"type": "string"}
-                },
-                "required": ["code", "name"]
-            }
+                "properties": {"code": {"type": "string"}, "name": {"type": "string"}},
+                "required": ["code", "name"],
+            },
         }
         with open(schemas_dir / "enum.schema.json", "w") as f:
             json.dump(enum_schema, f)
@@ -74,12 +63,9 @@ class TestCatalogLoader:
             "type": "array",
             "items": {
                 "type": "object",
-                "properties": {
-                    "code": {"type": "string"},
-                    "name": {"type": "string"}
-                },
-                "required": ["code", "name"]
-            }
+                "properties": {"code": {"type": "string"}, "name": {"type": "string"}},
+                "required": ["code", "name"],
+            },
         }
         with open(schemas_dir / "charge-classes.schema.json", "w") as f:
             json.dump(charge_classes_schema, f)
@@ -92,9 +78,16 @@ class TestCatalogLoader:
                 "structure_types": {"type": "array"},
                 "size_types": {"type": "array"},
                 "availability": {"type": "string"},
-                "units_of_measure": {"type": "array"}
+                "units_of_measure": {"type": "array"},
             },
-            "required": ["code", "name", "structure_types", "size_types", "availability", "units_of_measure"]
+            "required": [
+                "code",
+                "name",
+                "structure_types",
+                "size_types",
+                "availability",
+                "units_of_measure",
+            ],
         }
         with open(schemas_dir / "parking.schema.json", "w") as f:
             json.dump(parking_schema, f)
@@ -181,7 +174,7 @@ class TestCatalogLoader:
         # Create charge classes with duplicate codes
         charge_classes_data = [
             {"code": "RENT", "name": "Rent"},
-            {"code": "RENT", "name": "Rent Again"}  # Duplicate code
+            {"code": "RENT", "name": "Rent Again"},  # Duplicate code
         ]
         with open(catalogs_dir / "charge-classes.json", "w") as f:
             json.dump(charge_classes_data, f)
@@ -216,12 +209,9 @@ class TestCatalogLoader:
             "type": "array",
             "items": {
                 "type": "object",
-                "properties": {
-                    "code": {"type": "string"},
-                    "name": {"type": "string"}
-                },
-                "required": ["code", "name"]
-            }
+                "properties": {"code": {"type": "string"}, "name": {"type": "string"}},
+                "required": ["code", "name"],
+            },
         }
         with open(schemas_dir / "charge-classes.schema.json", "w") as f:
             json.dump(charge_classes_schema, f)
@@ -254,7 +244,7 @@ class TestCatalogLoader:
             "name": "Rent",
             "description": "Monthly rent",
             "aliases": ["MONTHLY_RENT"],
-            "notes": "Primary charge"
+            "notes": "Primary charge",
         }
         charge = ChargeClass(charge_data)
         assert charge.code == "RENT"
@@ -264,11 +254,7 @@ class TestCatalogLoader:
         assert charge.notes == "Primary charge"
 
         # Test EnumEntry
-        enum_data = {
-            "code": "REQUIRED",
-            "name": "Required",
-            "description": "Mandatory charge"
-        }
+        enum_data = {"code": "REQUIRED", "name": "Required", "description": "Mandatory charge"}
         enum_entry = EnumEntry(enum_data)
         assert enum_entry.code == "REQUIRED"
         assert enum_entry.name == "Required"
@@ -281,7 +267,7 @@ class TestCatalogLoader:
             "structure_types": ["SURFACE", "GARAGE"],
             "size_types": ["COMPACT", "STANDARD"],
             "availability": "BOTH",
-            "units_of_measure": ["HOUR", "DAY"]
+            "units_of_measure": ["HOUR", "DAY"],
         }
         spec = ItemSpecialization(spec_data)
         assert spec.code == "PARKING_SPACE"

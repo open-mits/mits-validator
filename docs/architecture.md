@@ -10,38 +10,38 @@ graph TB
         API[FastAPI Web Service]
         CLI[Command Line Interface]
     end
-    
+
     subgraph "Core Engine"
         VE[Validation Engine]
         LR[Levels Registry]
     end
-    
+
     subgraph "Validation Levels"
         WF[WellFormed Validator]
         XSD[XSD Validator]
         SCH[Schematron Validator]
         SEM[Semantic Validator]
     end
-    
+
     subgraph "Resource Loaders"
         CL[Catalog Loader]
         PL[Profile Loader]
         UF[URL Fetcher]
     end
-    
+
     subgraph "Data Models"
         M[Models]
         E[Error Catalog]
         F[Findings]
     end
-    
+
     subgraph "External Resources"
         CAT[Catalogs]
         XSD_FILES[XSD Schemas]
         SCH_RULES[Schematron Rules]
         PROFILES[Validation Profiles]
     end
-    
+
     API --> VE
     CLI --> VE
     VE --> LR

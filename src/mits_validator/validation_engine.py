@@ -82,9 +82,7 @@ class WellFormedValidator:
             )
 
         duration_ms = int((time.time() - start_time) * 1000)
-        return ValidationResult(
-            level="WellFormed", findings=findings, duration_ms=duration_ms
-        )
+        return ValidationResult(level="WellFormed", findings=findings, duration_ms=duration_ms)
 
     def get_name(self) -> str:
         """Get the name of this validation level."""
@@ -115,11 +113,12 @@ class ValidationEngine:
             if not self._profile_config:
                 # Create a minimal default profile
                 from mits_validator.profile_models import ProfileConfig
+
                 self._profile_config = ProfileConfig(
                     name="default",
                     description="Default profile",
                     enabled_levels=["WellFormed", "XSD", "Schematron", "Semantic"],
-                    severity_overrides={}
+                    severity_overrides={},
                 )
 
     def _register_levels(self) -> None:
@@ -129,7 +128,7 @@ class ValidationEngine:
 
         if not self._profile_config:
             return
-            
+
         # Register XSD if in profile
         if "XSD" in self._profile_config.enabled_levels:
             xsd_schema_path = self._rules_dir / "xsd" / "schema.xsd"
@@ -219,7 +218,7 @@ class ValidationEngine:
                 "severity_overrides": {},
                 "intake_limits": None,
             }
-            
+
         return {
             "name": self._profile_config.name,
             "description": self._profile_config.description,
@@ -228,8 +227,8 @@ class ValidationEngine:
                 k: v.value for k, v in self._profile_config.severity_overrides.items()
             },
             "intake_limits": (
-                self._profile_config.intake_limits.__dict__ 
-                if self._profile_config.intake_limits 
+                self._profile_config.intake_limits.__dict__
+                if self._profile_config.intake_limits
                 else None
             ),
         }

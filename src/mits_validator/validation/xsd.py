@@ -24,25 +24,31 @@ def validate_xsd(
 ) -> ValidationResult:
     """
     Validate XML content against MITS 5.0 XSD schema.
-    
+
     Args:
         xml_content: XML content to validate (string, bytes, or file path)
         schema_path: Path to XSD schema file (defaults to MITS 5.0 schema)
-        
+
     Returns:
         ValidationResult with validation findings
-        
+
     Raises:
         XSDValidationError: If schema loading fails
     """
     start_time = time.time()
     findings: list[Finding] = []
-    
+
     try:
         # Load schema
         if schema_path is None:
-            schema_path = Path(__file__).parent.parent.parent.parent / "rules" / "xsd" / "5.0" / "PropertyMarketing-ILS-5.0.xsd"
-        
+            schema_path = (
+                Path(__file__).parent.parent.parent.parent
+                / "rules"
+                / "xsd"
+                / "5.0"
+                / "PropertyMarketing-ILS-5.0.xsd"
+            )
+
         if not schema_path.exists():
             findings.append(
                 Finding(
@@ -57,7 +63,7 @@ def validate_xsd(
                 findings=findings,
                 duration_ms=int((time.time() - start_time) * 1000),
             )
-        
+
         # Parse schema
         try:
             schema_doc = etree.parse(str(schema_path))
@@ -76,14 +82,14 @@ def validate_xsd(
                 findings=findings,
                 duration_ms=int((time.time() - start_time) * 1000),
             )
-        
+
         # Parse XML content
         try:
-            if isinstance(xml_content, (str, bytes)):
+            if isinstance(xml_content, str | bytes):
                 # Parse from string/bytes
                 parser = etree.XMLParser(no_network=True, resolve_entities=False)
                 if isinstance(xml_content, str):
-                    xml_content = xml_content.encode('utf-8')
+                    xml_content = xml_content.encode("utf-8")
                 xml_doc = etree.fromstring(xml_content, parser=parser)
             else:
                 # Parse from file path
@@ -103,7 +109,7 @@ def validate_xsd(
                 findings=findings,
                 duration_ms=int((time.time() - start_time) * 1000),
             )
-        
+
         # Validate against schema
         try:
             schema.assertValid(xml_doc)
@@ -132,7 +138,7 @@ def validate_xsd(
                     rule_ref="internal://XSD",
                 )
             )
-    
+
     except Exception as e:
         findings.append(
             Finding(
@@ -142,7 +148,7 @@ def validate_xsd(
                 rule_ref="internal://XSD",
             )
         )
-    
+
     duration_ms = int((time.time() - start_time) * 1000)
     return ValidationResult(
         level="XSD",
@@ -155,12 +161,12 @@ def _get_xpath_from_error(error: Any) -> str:
     """Extract XPath from validation error."""
     try:
         # Try to get XPath from error context
-        if hasattr(error, 'path'):
+        if hasattr(error, "path"):
             return error.path
-        elif hasattr(error, 'xpath'):
+        elif hasattr(error, "xpath"):
             return error.xpath
         else:
-            return f"/{error.tag}" if hasattr(error, 'tag') else "/"
+            return f"/{error.tag}" if hasattr(error, "tag") else "/"
     except Exception:
         return "/"
 
@@ -168,16 +174,22 @@ def _get_xpath_from_error(error: Any) -> str:
 def get_schema_info(schema_path: Path | None = None) -> dict[str, Any]:
     """
     Get information about the XSD schema.
-    
+
     Args:
         schema_path: Path to XSD schema file
-        
+
     Returns:
         Dictionary with schema information
     """
     if schema_path is None:
-        schema_path = Path(__file__).parent.parent.parent.parent / "rules" / "xsd" / "5.0" / "PropertyMarketing-ILS-5.0.xsd"
-    
+        schema_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "rules"
+            / "xsd"
+            / "5.0"
+            / "PropertyMarketing-ILS-5.0.xsd"
+        )
+
     info = {
         "schema_path": str(schema_path),
         "exists": schema_path.exists(),
@@ -185,32 +197,32 @@ def get_schema_info(schema_path: Path | None = None) -> dict[str, Any]:
         "root_element": None,
         "version": None,
     }
-    
+
     if schema_path.exists():
         try:
             schema_doc = etree.parse(str(schema_path))
             root = schema_doc.getroot()
-            
+
             # Extract namespace
             if root.nsmap:
                 info["namespace"] = root.nsmap.get(None, "")
-            
+
             # Extract root element
             for elem in root.iter():
                 if str(elem.tag).endswith("element") and elem.get("name"):
                     info["root_element"] = elem.get("name")
                     break
-            
+
             # If no root element found, try to get the first element
             if not info["root_element"]:
                 elements = root.findall(".//{http://www.w3.org/2001/XMLSchema}element")
                 if elements:
                     info["root_element"] = elements[0].get("name")
-            
+
             # Extract version
             info["version"] = root.get("version", "5.0")
-            
+
         except Exception as e:
             info["error"] = str(e)
-    
+
     return info

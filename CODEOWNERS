@@ -1,17 +1,23 @@
 # Global owners
-* @open-mits
+* @open-mits/maintainers
 
-# Core maintainers for specific areas
-/src/ @open-mits
-/tests/ @open-mits
-/docs/ @open-mits
+# Documentation
+docs/ @open-mits/maintainers
+README.md @open-mits/maintainers
+
+# Source code
+src/ @open-mits/maintainers
+
+# Tests
+tests/ @open-mits/maintainers
 
 # Configuration files
-/.github/ @open-mits
-/pyproject.toml @open-mits
-/LICENSE @open-mits
-/README.md @open-mits
-/CONTRIBUTING.md @open-mits
-/CODE_OF_CONDUCT.md @open-mits
-/SECURITY.md @open-mits
-/GOVERNANCE.md @open-mits
+pyproject.toml @open-mits/maintainers
+.github/ @open-mits/maintainers
+.pre-commit-config.yaml @open-mits/maintainers
+
+# Rules and schemas
+rules/ @open-mits/maintainers
+
+# Scripts
+scripts/ @open-mits/maintainers

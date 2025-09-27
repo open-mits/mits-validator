@@ -1,10 +1,9 @@
 """Tests for Schematron validation."""
 
-import pytest
 from pathlib import Path
 
 from mits_validator.models import FindingLevel
-from mits_validator.validation.schematron import validate_schematron, get_rules_info
+from mits_validator.validation.schematron import get_rules_info, validate_schematron
 
 
 class TestSchematronValidation:
@@ -39,9 +38,9 @@ class TestSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         # Should pass business rule validation
         assert len(result.findings) == 0
@@ -74,9 +73,9 @@ class TestSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -110,9 +109,9 @@ class TestSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -146,9 +145,9 @@ class TestSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -157,7 +156,7 @@ class TestSchematronValidation:
     def test_validate_missing_rules(self):
         """Test validation when rules file is missing."""
         result = validate_schematron("", rules_path=Path("/nonexistent/rules.sch"))
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) == 1
         assert result.findings[0].level == FindingLevel.INFO
@@ -182,9 +181,9 @@ class TestSchematronValidation:
   </Property>
   <UnclosedTag>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -192,11 +191,13 @@ class TestSchematronValidation:
 
     def test_validate_from_file(self):
         """Test validation from file path."""
-        fixture_path = Path(__file__).parent.parent.parent / "fixtures" / "mits5" / "valid-property.xml"
-        
+        fixture_path = (
+            Path(__file__).parent.parent.parent / "fixtures" / "mits5" / "valid-property.xml"
+        )
+
         if fixture_path.exists():
             result = validate_schematron(fixture_path)
-            
+
             assert result.level == "Schematron"
             # Should pass business rule validation
             assert len(result.findings) == 0
@@ -204,14 +205,14 @@ class TestSchematronValidation:
     def test_get_rules_info(self):
         """Test getting rules information."""
         info = get_rules_info()
-        
+
         assert "rules_path" in info
         assert "exists" in info
         assert "title" in info
         assert "description" in info
         assert "patterns" in info
         assert "rules_count" in info
-        
+
         if info["exists"]:
             assert len(info["patterns"]) > 0
             assert info["rules_count"] > 0
@@ -245,9 +246,9 @@ class TestSchematronValidation:
     </ChargeOffer>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
@@ -271,9 +272,9 @@ class TestSchematronValidation:
     </Address>
   </Property>
 </PropertyMarketing>"""
-        
+
         result = validate_schematron(xml_content)
-        
+
         assert result.level == "Schematron"
         assert len(result.findings) > 0
         assert any(finding.level == FindingLevel.ERROR for finding in result.findings)
