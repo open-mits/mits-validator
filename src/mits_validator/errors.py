@@ -435,6 +435,39 @@ ERROR_CATALOG: dict[str, ErrorDefinition] = {
         remediation="Check that the resource exists and is accessible",
         level="engine",
     ),
+    "ENGINE:ASYNC_VALIDATION_FAILED": ErrorDefinition(
+        code="ENGINE:ASYNC_VALIDATION_FAILED",
+        severity=FindingLevel.ERROR,
+        title="Async validation failed",
+        description="Asynchronous validation process failed",
+        remediation="Check validation configuration and try again",
+        level="engine",
+    ),
+    "ENGINE:MEMORY_VALIDATION_FAILED": ErrorDefinition(
+        code="ENGINE:MEMORY_VALIDATION_FAILED",
+        severity=FindingLevel.ERROR,
+        title="Memory validation failed",
+        description="Memory-optimized validation process failed",
+        remediation="Check system memory and validation configuration",
+        level="engine",
+    ),
+    "ENGINE:STREAMING_PARSE_ERROR": ErrorDefinition(
+        code="ENGINE:STREAMING_PARSE_ERROR",
+        severity=FindingLevel.ERROR,
+        title="Streaming parse error",
+        description="Failed to parse XML in streaming mode",
+        remediation="Check XML syntax and structure",
+        level="engine",
+    ),
+    # Semantic validation errors
+    "SEMANTIC:VALIDATION_ERROR": ErrorDefinition(
+        code="SEMANTIC:VALIDATION_ERROR",
+        severity=FindingLevel.ERROR,
+        title="Semantic validation error",
+        description="Semantic validation process failed",
+        remediation="Check semantic validation configuration and XML content",
+        level="semantic",
+    ),
 }
 
 

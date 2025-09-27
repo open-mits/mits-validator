@@ -199,8 +199,10 @@ class SchemaCache:
         """Cache XSD schema."""
         cache_key = self._get_schema_key(schema_path, "xsd")
 
-        # Serialize schema for caching
-        schema_xml = etree.tostring(schema._root, encoding="unicode")
+        # Read the original schema file for caching
+        with open(schema_path, encoding="utf-8") as f:
+            schema_xml = f.read()
+
         cached_data = {
             "schema_xml": schema_xml,
             "schema_path": str(schema_path),
@@ -229,8 +231,10 @@ class SchemaCache:
         """Cache Schematron rules."""
         cache_key = self._get_schema_key(rules_path, "schematron")
 
-        # Serialize XSLT for caching
-        xslt_xml = etree.tostring(xslt.doc, encoding="unicode")
+        # Read the original rules file for caching
+        with open(rules_path, encoding="utf-8") as f:
+            xslt_xml = f.read()
+
         cached_data = {
             "xslt_xml": xslt_xml,
             "rules_path": str(rules_path),
