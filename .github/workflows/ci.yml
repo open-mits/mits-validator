@@ -57,7 +57,7 @@ jobs:
       run: uv run bandit -r src/ -f json -o bandit-report.json || true
 
     - name: Run contract tests
-      run: uv run pytest tests/test_contract.py -v
+      run: uv run pytest tests/test_contract.py -v --no-cov
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.12'
