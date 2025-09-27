@@ -6,25 +6,29 @@ A professional, open-source validator for MITS (Property Marketing / ILS) XML fe
 
 MITS Validator provides comprehensive validation for MITS XML feeds through multiple layers:
 
-- **XSD Conformance**: Validates XML structure against MITS schemas
-- **Business Rules**: Implements Schematron rules for business logic validation
-- **Semantic Consistency**: Ensures data consistency across the feed
+- **WellFormed (Level 1)**: Basic XML structure validation
+- **XSD (Level 2)**: Schema conformance validation against MITS schemas
+- **Schematron (Level 3)**: Business rules validation using Schematron
+- **Semantic (Level 4)**: Semantic consistency checks against catalogs
 
 ## Features
 
-### Current (MVP)
-- ✅ FastAPI web service with health checks
-- ✅ CLI interface for validation
-- ✅ File upload and URL validation endpoints
-- ✅ Comprehensive test suite
-- ✅ Professional documentation
+### ✅ Current Features
+- **Multi-level Validation**: WellFormed, XSD, Schematron, and Semantic validation
+- **REST API**: FastAPI web service with comprehensive endpoints
+- **CLI Interface**: Command-line tool for validation
+- **Validation Profiles**: Configurable validation levels and settings
+- **Error Reporting**: Detailed findings with location information
+- **Performance Optimized**: Fast validation with configurable limits
+- **Comprehensive Testing**: 87%+ test coverage with 153 passing tests
+- **Professional Documentation**: Complete guides and examples
 
-### Roadmap
-- 🔄 XSD conformance validation
-- 🔄 Schematron business rules
-- 🔄 Semantic consistency checks
-- 🔄 Advanced reporting and analytics
-- 🔄 Integration tools and SDKs
+### 🚀 Enhanced Developer Experience
+- **Interactive API Documentation**: Swagger UI with live examples
+- **Comprehensive Guides**: Developer, deployment, and performance guides
+- **Code Examples**: Python, JavaScript, cURL, and Postman examples
+- **Performance Benchmarks**: Detailed performance metrics and optimization
+- **Contributing Guidelines**: Clear guidelines for contributors
 
 ## Quick Start
 
@@ -72,36 +76,71 @@ mits-validate check feed.xml
   - URL validation: `application/x-www-form-urlencoded` with `url` field
   - Size limit: 10MB (configurable)
 
+## Documentation
+
+### 📚 Comprehensive Guides
+- **[Developer Guide](developer-guide.md)** - Complete development setup and integration
+- **[API Examples](api-examples.md)** - Interactive examples in multiple languages
+- **[Performance Benchmarks](performance-benchmarks.md)** - Optimization and scaling guide
+- **[Deployment Guide](deployment-guide.md)** - Production deployment strategies
+- **[Contributing Guidelines](contributing-guidelines.md)** - How to contribute to the project
+
+### 🔧 API Documentation
+- **[REST API Reference](api/rest.md)** - Complete API reference
+- **[CLI Documentation](api/cli.md)** - Command-line interface guide
+- **[Validation Levels](validation-levels.md)** - Understanding validation levels
+- **[Error Codes](error-codes.md)** - Comprehensive error reference
+
 ## Development
 
 ### Prerequisites
 - Python 3.12+
-- uv package manager
+- [uv](https://github.com/astral-sh/uv) package manager (recommended)
 
-### Setup
+### Quick Setup
 ```bash
+# Clone and setup
 git clone https://github.com/open-mits/mits-validator.git
 cd mits-validator
-uv sync -E dev
+uv sync
 uv run pre-commit install
+
+# Run tests
+uv run pytest
+
+# Start development server
+uv run uvicorn mits_validator.api:app --reload
 ```
 
-### Running Tests
+### Development Tools
 ```bash
-uv run pytest
+# Run with coverage
+uv run pytest --cov=src --cov-report=html
+
+# Run linting
+uv run ruff check .
+
+# Run formatting
+uv run ruff format .
+
+# Run all checks
+uv run pre-commit run --all-files
 ```
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](contributing.md) for details.
+We welcome contributions! Please see our [Contributing Guidelines](contributing-guidelines.md) for comprehensive details.
 
-### Development Setup
-1. Fork the repository
-2. Install dependencies: `uv sync -E dev`
-3. Install pre-commit hooks: `uv run pre-commit install`
-4. Make your changes
-5. Run tests: `uv run pytest`
-6. Submit a pull request
+### Quick Start for Contributors
+1. **Fork the repository** on GitHub
+2. **Clone your fork**: `git clone https://github.com/your-username/mits-validator.git`
+3. **Install dependencies**: `uv sync`
+4. **Install pre-commit hooks**: `uv run pre-commit install`
+5. **Create a feature branch**: `git checkout -b feature/your-feature`
+6. **Make your changes** and add tests
+7. **Run tests**: `uv run pytest`
+8. **Commit and push**: `git commit -m "feat: add your feature"`
+9. **Create a pull request** on GitHub
 
 ## Security
 
