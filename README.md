@@ -24,6 +24,18 @@ A professional, open-source validator for MITS (Property Marketing / ILS) XML fe
 - ✅ **Comprehensive Testing** - Full test suite with coverage reporting
 - ✅ **Professional Documentation** - Complete docs with MkDocs Material
 
+### Performance & Scalability
+- ✅ **Async Validation Engine** - Handles large XML files without blocking
+- ✅ **Streaming XML Parser** - Memory-optimized processing for very large files
+- ✅ **Comprehensive Health Checks** - Filesystem, cache, memory, disk space monitoring
+- ✅ **Alerting System** - Configurable thresholds and notifications
+- ✅ **Caching Layer** - Redis and in-memory caching for schemas and rules
+- ✅ **Rate Limiting** - Request throttling and client management
+- ✅ **Metrics Collection** - Prometheus-compatible monitoring
+- ✅ **Structured Logging** - Correlation IDs and service information
+- ✅ **Container Support** - Docker images with health checks
+- ✅ **Production Ready** - Scalable architecture with monitoring
+
 ### Roadmap
 - 🔄 **XSD Conformance** - Validate XML structure against MITS schemas
 - 🔄 **Business Rules** - Implement Schematron rules for business logic validation
@@ -103,6 +115,19 @@ curl -X POST -F "file=@feed.xml" http://localhost:8000/v1/validate
 | `CORS_METHODS` | `GET,POST,OPTIONS` | CORS allowed methods |
 | `CORS_HEADERS` | `*` | CORS allowed headers |
 
+#### Performance & Scalability Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REDIS_URL` | `None` | Redis connection URL for caching |
+| `RATE_LIMIT_MAX_REQUESTS` | `100` | Maximum requests per time window |
+| `RATE_LIMIT_TIME_WINDOW` | `60` | Rate limit time window in seconds |
+| `THROTTLE_MAX_CONCURRENT` | `10` | Maximum concurrent requests |
+| `ASYNC_VALIDATION_MAX_CONCURRENT` | `5` | Maximum concurrent async validations |
+| `MEMORY_LIMIT_MB` | `100` | Memory limit for streaming parser |
+| `ALERT_THRESHOLD_ERROR_RATE` | `0.1` | Error rate threshold for alerts |
+| `ALERT_THRESHOLD_RESPONSE_TIME` | `5.0` | Response time threshold for alerts |
+
 ### Example Usage
 
 ```bash
@@ -134,6 +159,74 @@ make run
 
 # Run tests in container
 make test
+```
+
+## 🚀 Performance & Scalability Features
+
+### Async Validation Engine
+The validator includes an async validation engine for handling large XML files without blocking:
+
+```python
+# Async validation for large files
+POST /v1/validate/async
+Content-Type: application/json
+
+{
+  "url": "https://example.com/large-feed.xml",
+  "profile": "enhanced-validation"
+}
+```
+
+### Streaming XML Parser
+Memory-optimized processing for very large XML files:
+
+```python
+# Memory-optimized validation
+POST /v1/validate/streaming
+Content-Type: application/xml
+
+# Large XML content streamed and processed efficiently
+```
+
+### Health Monitoring
+Comprehensive health checks for production environments:
+
+```bash
+# Basic health check
+curl http://localhost:8000/health
+
+# Detailed health check
+curl http://localhost:8000/health/detailed
+```
+
+### Metrics & Monitoring
+Prometheus-compatible metrics collection:
+
+```bash
+# Metrics endpoint
+curl http://localhost:8000/metrics
+```
+
+### Caching
+Redis and in-memory caching for improved performance:
+
+```bash
+# Run with Redis caching
+docker run -p 8000:8000 \
+  -e REDIS_URL=redis://localhost:6379 \
+  ghcr.io/open-mits/mits-validator:latest
+```
+
+### Rate Limiting
+Configurable rate limiting and request throttling:
+
+```bash
+# Run with custom rate limits
+docker run -p 8000:8000 \
+  -e RATE_LIMIT_MAX_REQUESTS=100 \
+  -e RATE_LIMIT_TIME_WINDOW=60 \
+  ghcr.io/open-mits/mits-validator:latest
+```
 
 # Run smoke tests
 make smoke

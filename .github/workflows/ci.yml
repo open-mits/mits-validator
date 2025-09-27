@@ -48,7 +48,7 @@ jobs:
       run: uv run mypy src/mits_validator
 
     - name: Run tests with coverage
-      run: uv run pytest
+      run: uv run pytest --cov=src/mits_validator --cov-report=xml --cov-report=term-missing --cov-fail-under=80
 
     - name: Validate catalogs
       run: uv run python scripts/validate_catalogs.py
@@ -124,3 +124,40 @@ jobs:
         # Cleanup
         docker stop mits-validator-test
         docker rm mits-validator-test
+
+  performance:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
+
+    - name: Install dependencies
+      run: uv sync --extra dev
+
+    - name: Run performance benchmarks
+      run: uv run pytest tests/benchmarks/ -v
+
+    - name: Run load tests
+      run: |
+        # Start the service
+        uv run uvicorn src.mits_validator.api:app --port 8000 &
+        sleep 5
+
+        # Run load tests
+        for i in {1..10}; do
+          curl -X POST -F "file=@fixtures/mits5/valid-property.xml" http://localhost:8000/v1/validate &
+        done
+        wait
+
+        # Stop the service
+        pkill -f uvicorn

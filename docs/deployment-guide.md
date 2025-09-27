@@ -1,431 +1,361 @@
 # Deployment Guide
 
-This guide covers various deployment options for the MITS Validator service, from local development to production environments.
+This guide covers deploying the MITS Validator in different environments, from development to production.
 
-## 🐳 Docker Deployment
+## 🚀 Quick Start
 
-### Quick Start
+### Docker Deployment (Recommended)
 
 ```bash
 # Pull the latest image
 docker pull ghcr.io/open-mits/mits-validator:latest
 
-# Run the container
+# Run with default settings
 docker run -p 8000:8000 ghcr.io/open-mits/mits-validator:latest
-```
 
-### Production Configuration
-
-```bash
-# Run with production settings
-docker run -d \
-  --name mits-validator \
-  --restart unless-stopped \
-  -p 8000:8000 \
+# Run with custom configuration
+docker run -p 8000:8000 \
   -e MAX_UPLOAD_BYTES=52428800 \
-  -e LOG_LEVEL=INFO \
-  -e CORS_ORIGINS="https://yourdomain.com" \
+  -e REDIS_URL=redis://localhost:6379 \
+  -e RATE_LIMIT_MAX_REQUESTS=200 \
   ghcr.io/open-mits/mits-validator:latest
 ```
 
-### Environment Variables
+## 🏗️ Environment Configurations
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8000` | Port to bind the service |
-| `MAX_UPLOAD_BYTES` | `10485760` | Maximum file size (10MB) |
-| `REQUEST_TIMEOUT` | `30` | Request timeout in seconds |
-| `ALLOWED_CONTENT_TYPES` | `application/xml,text/xml,application/octet-stream` | Allowed content types |
-| `DEFAULT_PROFILE` | `default` | Default validation profile |
-| `LOG_LEVEL` | `INFO` | Logging level |
-| `CORS_ORIGINS` | `*` | CORS allowed origins |
-| `CORS_METHODS` | `GET,POST,OPTIONS` | CORS allowed methods |
-| `CORS_HEADERS` | `*` | CORS allowed headers |
+### Development
 
-### Docker Compose
+```bash
+# Local development with hot reload
+uv run uvicorn src.mits_validator.api:app --reload --port 8000
 
-Create a `docker-compose.yml` file:
+# With environment variables
+REDIS_URL=redis://localhost:6379 \
+RATE_LIMIT_MAX_REQUESTS=50 \
+uv run uvicorn src.mits_validator.api:app --reload --port 8000
+```
 
-```yaml
+### Staging
+
+```bash
+# Docker Compose for staging
 version: '3.8'
-
 services:
   mits-validator:
     image: ghcr.io/open-mits/mits-validator:latest
     ports:
       - "8000:8000"
     environment:
-      - MAX_UPLOAD_BYTES=52428800
+      - REDIS_URL=redis://redis:6379
+      - RATE_LIMIT_MAX_REQUESTS=100
       - LOG_LEVEL=INFO
-      - CORS_ORIGINS=https://yourdomain.com
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    depends_on:
+      - redis
+      - prometheus
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
 ```
 
-Run with:
+### Production
 
-```bash
-docker-compose up -d
-```
-
-## ☁️ Cloud Deployment
-
-### Google Cloud Run
-
-1. **Deploy to Cloud Run**:
-
-```bash
-# Build and push to Google Container Registry
-gcloud builds submit --tag gcr.io/PROJECT_ID/mits-validator
-
-# Deploy to Cloud Run
-gcloud run deploy mits-validator \
-  --image gcr.io/PROJECT_ID/mits-validator \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars MAX_UPLOAD_BYTES=52428800
-```
-
-2. **Cloud Run Configuration**:
+#### Docker Swarm
 
 ```yaml
-# cloud-run.yaml
-apiVersion: serving.knative.dev/v1
-kind: Service
+# docker-stack.yml
+version: '3.8'
+services:
+  mits-validator:
+    image: ghcr.io/open-mits/mits-validator:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - RATE_LIMIT_MAX_REQUESTS=500
+      - THROTTLE_MAX_CONCURRENT=50
+      - LOG_LEVEL=WARNING
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+```
+
+#### Kubernetes
+
+```yaml
+# k8s-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: mits-validator
-  annotations:
-    run.googleapis.com/ingress: all
 spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mits-validator
   template:
     metadata:
-      annotations:
-        autoscaling.knative.dev/maxScale: "10"
-        run.googleapis.com/cpu-throttling: "false"
+      labels:
+        app: mits-validator
     spec:
-      containerConcurrency: 100
       containers:
-      - image: ghcr.io/open-mits/mits-validator:latest
+      - name: mits-validator
+        image: ghcr.io/open-mits/mits-validator:latest
         ports:
         - containerPort: 8000
         env:
-        - name: MAX_UPLOAD_BYTES
-          value: "52428800"
-        - name: LOG_LEVEL
-          value: "INFO"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: RATE_LIMIT_MAX_REQUESTS
+          value: "500"
+        - name: THROTTLE_MAX_CONCURRENT
+          value: "50"
         resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
           limits:
-            cpu: "2"
-            memory: "2Gi"
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mits-validator-service
+spec:
+  selector:
+    app: mits-validator
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: LoadBalancer
 ```
 
-### AWS ECS/Fargate
+## 🔧 Configuration
 
-1. **Task Definition**:
+### Environment Variables
 
-```json
-{
-  "family": "mits-validator",
-  "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "512",
-  "memory": "1024",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT:role/ecsTaskExecutionRole",
-  "containerDefinitions": [
-    {
-      "name": "mits-validator",
-      "image": "ghcr.io/open-mits/mits-validator:latest",
-      "portMappings": [
-        {
-          "containerPort": 8000,
-          "protocol": "tcp"
-        }
-      ],
-      "environment": [
-        {
-          "name": "MAX_UPLOAD_BYTES",
-          "value": "52428800"
-        },
-        {
-          "name": "LOG_LEVEL",
-          "value": "INFO"
-        }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/mits-validator",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      }
-    }
-  ]
-}
-```
+#### Core Settings
+- `PORT`: Service port (default: 8000)
+- `MAX_UPLOAD_BYTES`: Maximum file size (default: 10MB)
+- `REQUEST_TIMEOUT`: Request timeout in seconds (default: 30)
+- `LOG_LEVEL`: Logging level (default: INFO)
 
-### Azure Container Instances
+#### Performance Settings
+- `REDIS_URL`: Redis connection URL for caching
+- `RATE_LIMIT_MAX_REQUESTS`: Maximum requests per time window (default: 100)
+- `RATE_LIMIT_TIME_WINDOW`: Rate limit time window in seconds (default: 60)
+- `THROTTLE_MAX_CONCURRENT`: Maximum concurrent requests (default: 10)
+- `ASYNC_VALIDATION_MAX_CONCURRENT`: Maximum concurrent async validations (default: 5)
+- `MEMORY_LIMIT_MB`: Memory limit for streaming parser (default: 100)
 
-```bash
-# Create resource group
-az group create --name mits-validator-rg --location eastus
+#### Monitoring Settings
+- `ALERT_THRESHOLD_ERROR_RATE`: Error rate threshold for alerts (default: 0.1)
+- `ALERT_THRESHOLD_RESPONSE_TIME`: Response time threshold for alerts (default: 5.0)
 
-# Deploy container
-az container create \
-  --resource-group mits-validator-rg \
-  --name mits-validator \
-  --image ghcr.io/open-mits/mits-validator:latest \
-  --ports 8000 \
-  --environment-variables \
-    MAX_UPLOAD_BYTES=52428800 \
-    LOG_LEVEL=INFO \
-  --dns-name-label mits-validator
-```
+### Validation Profiles
 
-## 🚀 Hugging Face Spaces (Docker)
-
-### Deploy to Hugging Face Spaces
-
-1. **Create a new Space**:
-   - Go to [Hugging Face Spaces](https://huggingface.co/new-space)
-   - Select "Docker" as the SDK
-   - Set `app_port: 8000`
-
-2. **Configure Environment**:
-   ```yaml
-   # README.md in your Space
-   ---
-   title: MITS Validator
-   emoji: 🏠
-   colorFrom: blue
-   colorTo: green
-   sdk: docker
-   app_port: 8000
-   pinned: false
-   ---
-   ```
-
-3. **Environment Variables**:
-   - `MAX_UPLOAD_BYTES`: `10485760` (10MB limit for public demo)
-   - `LOG_LEVEL`: `INFO`
-   - `CORS_ORIGINS`: `*` (for public access)
-
-### Public Demo Considerations
-
-- **Rate Limiting**: Implement rate limiting for production use
-- **File Size**: Default 10MB limit (configurable)
-- **Timeout**: 30-second request timeout
-- **Privacy**: Never upload sensitive production data to public instances
-- **Cold Starts**: Spaces may have cold start delays
-
-## 🏗️ Kubernetes Deployment
-
-### Helm Chart
-
-Create a basic Helm chart in `deploy/helm/mits-validator/`:
+Configure different validation profiles for different use cases:
 
 ```yaml
-# deploy/helm/mits-validator/values.yaml
-replicaCount: 2
-
-image:
-  repository: ghcr.io/open-mits/mits-validator
-  tag: latest
-  pullPolicy: IfNotPresent
-
-service:
-  type: ClusterIP
-  port: 8000
-
-ingress:
-  enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-  hosts:
-    - host: mits-validator.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-
-resources:
-  limits:
-    cpu: 1000m
-    memory: 1Gi
-  requests:
-    cpu: 500m
-    memory: 512Mi
-
-env:
-  MAX_UPLOAD_BYTES: "52428800"
-  LOG_LEVEL: "INFO"
+# rules/mits-5.0/profiles/production.yaml
+name: production
+description: Production validation profile
+enabled_levels:
+  - WellFormed
+  - XSD
+  - Schematron
+  - Semantic
+severity_overrides:
+  "XSD:SCHEMA_MISSING": warning
+  "SCHEMATRON:NO_RULES_LOADED": warning
+intake_limits:
+  max_bytes: 52428800  # 50MB
+  allowed_content_types:
+    - application/xml
+    - text/xml
+  timeout_seconds: 60
 ```
 
-### Deploy with Helm
-
-```bash
-# Add Helm repository (if using a chart repository)
-helm repo add mits-validator https://charts.example.com/mits-validator
-
-# Install the chart
-helm install mits-validator ./deploy/helm/mits-validator \
-  --set image.tag=v1.0.0 \
-  --set env.MAX_UPLOAD_BYTES=52428800
-```
-
-## 🔧 Development Deployment
-
-### Local Development
-
-```bash
-# Clone the repository
-git clone https://github.com/open-mits/mits-validator.git
-cd mits-validator
-
-# Install dependencies
-uv sync -E dev
-
-# Run the service
-uv run mits-api
-```
-
-### Docker Development
-
-```bash
-# Build the image
-make build
-
-# Run locally
-make run
-
-# Run tests
-make test
-
-# Run smoke tests
-make smoke
-```
-
-## 📊 Monitoring and Observability
+## 📊 Monitoring & Observability
 
 ### Health Checks
-
-The service provides built-in health checks:
 
 ```bash
 # Basic health check
 curl http://localhost:8000/health
 
-# Detailed health information
-curl http://localhost:8000/health | jq
-```
-
-### Logging
-
-The service uses structured JSON logging:
-
-```json
-{
-  "timestamp": "2024-01-01T00:00:00Z",
-  "level": "INFO",
-  "message": "Request processed",
-  "request_id": "uuid-here",
-  "method": "POST",
-  "path": "/v1/validate",
-  "status_code": 200,
-  "duration_ms": 123
-}
+# Detailed health check
+curl http://localhost:8000/health/detailed
 ```
 
 ### Metrics
 
-Consider adding metrics collection:
+```bash
+# Prometheus metrics
+curl http://localhost:8000/metrics
+```
 
-- **Request rate**: Requests per second
-- **Response time**: P50, P95, P99 latencies
-- **Error rate**: 4xx and 5xx error rates
-- **File size distribution**: Upload size metrics
-- **Validation results**: Success/failure rates
+### Logging
+
+The validator uses structured logging with correlation IDs:
+
+```json
+{
+  "timestamp": "2025-09-27T02:57:28.969956+00:00",
+  "level": "info",
+  "service": "mits-validator",
+  "version": "0.1.0",
+  "correlation_id": "fb77ee28-2e95-48df-8dbc-2a66d548d2bc",
+  "message": "Validation completed",
+  "valid": false,
+  "errors": 13,
+  "warnings": 0,
+  "findings_count": 14,
+  "duration_seconds": 0.019
+}
+```
 
 ## 🔒 Security Considerations
 
 ### Network Security
+- Use HTTPS in production
+- Configure proper CORS settings
+- Implement rate limiting
+- Use reverse proxy (nginx, traefik)
 
-- **TLS/SSL**: Use HTTPS in production
-- **Firewall**: Restrict access to necessary ports
-- **VPN**: Use VPN for internal deployments
+### Container Security
+- Run as non-root user
+- Use read-only filesystem where possible
+- Scan images for vulnerabilities
+- Keep base images updated
 
 ### Data Security
+- Validate all inputs
+- Implement proper error handling
+- Use secure logging practices
+- Monitor for suspicious activity
 
-- **File Uploads**: Validate and sanitize all uploads
-- **Size Limits**: Enforce reasonable file size limits
-- **Content Scanning**: Scan uploaded files for malware
-- **Data Retention**: Implement data retention policies
+## 🚀 Scaling Strategies
 
-### Access Control
+### Horizontal Scaling
+- Use load balancer (nginx, HAProxy)
+- Implement session affinity if needed
+- Use Redis for shared state
+- Monitor resource usage
 
-- **Authentication**: Implement API authentication
-- **Authorization**: Use role-based access control
-- **Rate Limiting**: Implement rate limiting
-- **CORS**: Configure CORS appropriately
+### Vertical Scaling
+- Increase memory limits for large files
+- Adjust concurrent request limits
+- Optimize database connections
+- Monitor performance metrics
 
-## 🚨 Troubleshooting
+### Caching Strategy
+- Use Redis for schema caching
+- Implement CDN for static assets
+- Cache validation results
+- Monitor cache hit rates
+
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-1. **Container won't start**:
-   ```bash
-   # Check container logs
-   docker logs mits-validator
+#### High Memory Usage
+```bash
+# Check memory usage
+docker stats mits-validator
 
-   # Check resource usage
-   docker stats mits-validator
-   ```
+# Adjust memory limits
+docker run -m 1g ghcr.io/open-mits/mits-validator:latest
+```
 
-2. **Health check failing**:
-   ```bash
-   # Test health endpoint
-   curl -v http://localhost:8000/health
+#### Slow Response Times
+```bash
+# Check metrics
+curl http://localhost:8000/metrics | grep duration
 
-   # Check port binding
-   netstat -tlnp | grep 8000
-   ```
+# Adjust rate limits
+docker run -e RATE_LIMIT_MAX_REQUESTS=50 ghcr.io/open-mits/mits-validator:latest
+```
 
-3. **Validation errors**:
-   ```bash
-   # Check service logs
-   docker logs mits-validator | grep ERROR
+#### Redis Connection Issues
+```bash
+# Test Redis connection
+docker run --network host redis:7-alpine redis-cli ping
 
-   # Test with sample XML
-   curl -X POST -F "file=@test.xml" http://localhost:8000/v1/validate
-   ```
+# Check Redis logs
+docker logs redis-container
+```
 
 ### Performance Tuning
 
-1. **Resource Allocation**:
-   - **CPU**: 1-2 cores for production
-   - **Memory**: 512MB-2GB depending on load
-   - **Storage**: Minimal (stateless service)
+#### For High Throughput
+- Increase `THROTTLE_MAX_CONCURRENT`
+- Use Redis caching
+- Optimize validation profiles
+- Monitor resource usage
 
-2. **Scaling**:
-   - **Horizontal**: Multiple container instances
-   - **Load Balancing**: Use a load balancer
-   - **Caching**: Consider Redis for caching
+#### For Large Files
+- Increase `MEMORY_LIMIT_MB`
+- Use streaming validation
+- Adjust timeout settings
+- Monitor memory usage
 
-3. **Monitoring**:
-   - **Health Checks**: Regular health check monitoring
-   - **Metrics**: Collect and analyze metrics
-   - **Alerting**: Set up alerts for failures
+## 📈 Production Checklist
 
-## 📚 Additional Resources
-
-- [Docker Documentation](https://docs.docker.com/)
-- [Kubernetes Documentation](https://kubernetes.io/docs/)
-- [Google Cloud Run Documentation](https://cloud.google.com/run/docs)
-- [AWS ECS Documentation](https://docs.aws.amazon.com/ecs/)
-- [Azure Container Instances Documentation](https://docs.microsoft.com/en-us/azure/container-instances/)
-- [Hugging Face Spaces Documentation](https://huggingface.co/docs/hub/spaces)
+- [ ] Configure proper environment variables
+- [ ] Set up Redis caching
+- [ ] Configure monitoring and alerting
+- [ ] Set up log aggregation
+- [ ] Configure backup strategies
+- [ ] Test disaster recovery procedures
+- [ ] Set up security scanning
+- [ ] Configure rate limiting
+- [ ] Test load balancing
+- [ ] Monitor performance metrics
